@@ -1,0 +1,9 @@
+Universe       = vanilla
+Notification   = never
+Priority       = +10
+GetEnv         = true
+Executable     = SHELLNAME
+Log            = .TASKNAME.log
+Output         = .TASKNAME.out
+Error          = .TASKNAME.err
+Queue
