@@ -1,0 +1,9 @@
+Universe       = vanilla
+Notification   = never
+Priority       = +10
+GetEnv         = true
+Executable     = GTMS
+Log            = .Job.log
+Output         = .Job.out
+Error          = .Job.err
+Queue
