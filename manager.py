@@ -442,7 +442,7 @@ if mode in ['run', 'calc']:
         for idx, item in enumerate(CutArgs.ptTags):
             l.log('For pt scan:')
             l.log(f'Item {idx+1:03d} - pt{item}')
-        for item in CutArgs.yTags:
+        for item in CutArgs.ptTags:
             if not os.path.exists(f'{runDir}/pt{item}'):
                 os.mkdir(f'{runDir}/pt{item}')
             if not os.path.exists(f'{runDir}/pt{item}/runCumulant'):
