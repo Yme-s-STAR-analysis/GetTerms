@@ -1,5 +1,12 @@
 # Quick Start
 
+Version: 3.3
+22.12.2023 - Yige Huang
+
+Updates:
+
+1. Now support pT scan as well.
+
 Version: 3.2
 15.12.2023 - Yige Huang
 
