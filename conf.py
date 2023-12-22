@@ -1,6 +1,6 @@
 r'''
-    Version: 3.1
-    Date: 30.10.2023
+    Version: 3.3
+    Date: 22.12.2023
 '''
 
 class Args:
@@ -27,8 +27,6 @@ class CutArgs:
     vr = 2.0
     DCAz = 30.0
     DCAxy = 10.0
-    ptMin = 0.4
-    ptMax = 2.0
     nHitsFit = 20
     nHitsDedx = 5
     nHitsRatio = 0.52
@@ -36,6 +34,25 @@ class CutArgs:
     dca = 1.0
     m2Min = 0.6
     m2Max = 1.2
+
+    # pT scan options
+    ptScan = True
+    ptMin = 0.4
+    ptMax = 2.0 # when do rapidity scan, this value will be default pt max
+    ptMaxs = [
+        # 2.0
+        0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0
+    ]
+    ptTags = [
+        # "2p0"
+        "0p8", "1p0", "1p2", "1p4", "1p6", "1p8", "2p0"
+    ]
+
+    # y scan options
+    yScan = True
+    yMin = 0.0 # When do pt scan
+    yMax = 0.5 # these values will be default
+    yMode = 1  # y min/max and mode (-0.5~0.5)
     yMins = [
         0.0, 0.0, 0.0, 0.0, 0.0
     ]
@@ -45,7 +62,7 @@ class CutArgs:
     yModes = [ # 1 for absolute value of y and 2 for specified range
         1, 1, 1, 1, 1
     ]
-    task_tags = [
-        'bTOFy1', 'bTOFy2', 'bTOFy3', 'bTOFy4', 'bTOFy5'
+    yTags = [
+        '0p1', "0p2", "0p3", "0p4", "0p5"
     ]
 
