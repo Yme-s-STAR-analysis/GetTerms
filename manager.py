@@ -3,7 +3,11 @@ r'''
     Cumulant Calculation Manage System
     Author: Yige HUANG
 
-    Latest Revision: v3.3 (22.12.2023) - Yige Huang
+    Latest Revision: v3.4 (8.1.2023) - Yige Huang
+
+    1. New feature: find the failed job and resubmit
+    
+    Revision: v3.3 (22.12.2023) - Yige Huang
 
     1. New feature: pT scan.
     
@@ -76,11 +80,11 @@ import os
 from conf import Args, CutArgs
 from yLog import yLog
 
-__version__ = '3.3'
-__updatedTime__ = '22.12.2023'
+__version__ = '3.4'
+__updatedTime__ = '8.1.2024'
 
 mode = sys.argv[1]
-assert(mode in ['sub', 'submit', 'mer', 'merge', 'run', 'calc', 'col', 'collect', 'clean', 'repo', 'report'])
+assert(mode in ['sub', 'submit', 'mer', 'merge', 'run', 'calc', 'col', 'collect', 'clean', 'resubmit', 'repo', 'report'])
 
 if mode not in ['clean', 'repo', 'report']:
     # verifying rapidity scan validation
@@ -515,6 +519,78 @@ if mode in ['col', 'collect']:
         os.remove(f'{col}.tgz')
     os.system(f'tar -zcvf {col}.tgz {col}/')
     l.log(f'All done. See {col} and {col}.tgz')
+
+# resubmit mode
+    
+if mode == 'resubmit':
+    l = yLog('resubmit.log')
+    l.log('Resubmit mode: find failed jobs and resubmit.')
+    l.log('Note: this resubmit mode only works for get terms part, NOT merge or calculate part.')
+    l.log('One should run merge first before resubmit. And DO NOT delete get terms output folders!')
+    
+    outDir = Args.outDir
+    mergeDir = Args.mergeDir
+
+    if not os.path.exists(outDir):
+        raise Exception(f'{outDir=} which does not exist.')
+
+    if not os.path.exists(mergeDir):
+        raise Exception(f'{mergeDir=} which does not exist.')
+
+    l.log('Tasks to be managed:')
+    if CutArgs.yScan:
+        l.log('For rapidity scan:')
+        for idx, item in enumerate(CutArgs.yTags):
+            l.log(f'Item {idx+1:03d}: y{item}')
+    if CutArgs.ptScan:
+        l.log('For pT scan:')
+        for idx, item in enumerate(CutArgs.ptTags):
+            l.log(f'Item {idx+1:03d}: pt{item}')
+
+    failedJobsDoc = 'FailedJobs.txt'
+
+    if len(sys.argv) <= 2 or len(sys.argv) >= 4:
+        raise Exception(f'Resubmit mode needs one additional option [f] or [s]')
+    else:
+        rscmd = sys.argv[2]
+        if rscmd not in ['f', 'find', 's', 'submit']:
+            raise Exception(f'Valid options for resubmit mode: [f]ind or [s]ubmit.')
+        if rscmd in ['f', 'find']:
+            l.log(f'Resubmit option: find failed jobs.')
+            l.log(f'The information of failed jobs will be stored in {failedJobsDoc}')
+            if os.path.exists(failedJobsDoc):
+                os.system(f'rm {failedJobsDoc}')
+            if CutArgs.yScan:
+                l.log('Now scanning rapidity scan folders.')
+                for item in CutArgs.yTags:
+                    for vzIdx in range(CutArgs.vzBin):
+                        os.system(r'''cat {}/y{}/.y{}.vz{}.err | grep Error | grep Init | awk -F "/" '{{printf$(NF-1)"."$NF}}' | awk -F "." '{{printf$1"/"$2"/"$3}}'>> {}'''.format(mergeDir, item, item, vzIdx, failedJobsDoc))
+                        os.system(f'echo "" >> {failedJobsDoc}')
+            if CutArgs.ptScan:
+                l.log('Now scanning pT scan folders.')
+                for item in CutArgs.ptTags:
+                    for vzIdx in range(CutArgs.vzBin):
+                        os.system(r'''cat {}/pt{}/.pt{}.vz{}.err | grep Error | grep Init | awk -F "/" '{{printf$(NF-1)"."$NF}}' | awk -F "." '{{printf$1"/"$2"/"$3}}'>> {}'''.format(mergeDir, item, item, vzIdx, failedJobsDoc))
+                        os.system(f'echo "" >> {failedJobsDoc}')
+            l.log(f'All done! Please check {failedJobsDoc} and know the status.')
+        if rscmd in ['s', 'submit']:
+            l.log(f'Resubmit opetion: submit the failed jobs.')
+            if not os.path.exists(failedJobsDoc):
+                l.log('No failed jobs found!')
+            else:
+                fJobs = open(failedJobsDoc).readlines()
+                fJobs = [item.strip() for item in fJobs]
+                cnt = 0
+                n = len(fJobs)
+                l.log(f'{n} failed jobs found, now re-submitting them.')
+                for item in fJobs:
+                    if item == '':
+                        continue
+                    jobId, scanTag, vzTag = item.split('/')
+                    l.log(f'Resubmit Jobs {cnt} / {n}: {jobId} - {scanTag} - {vzTag}')
+                    os.system(f'cd {outDir}/{jobId} && condor_submit {scanTag}.{vzTag}.{jobId[3:]}.getTerms.job')
+                    cnt += 1
+            l.log('All done!')
 
 # clean mode
 if mode == 'clean':
