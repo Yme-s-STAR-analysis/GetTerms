@@ -580,14 +580,14 @@ if mode == 'resubmit':
             else:
                 fJobs = open(failedJobsDoc).readlines()
                 fJobs = [item.strip() for item in fJobs]
-                cnt = 0
-                n = len(fJobs)
-                l.log(f'{n} failed jobs found, now re-submitting them.')
+                cnt = 1
                 for item in fJobs:
                     if item == '':
                         continue
                     jobId, scanTag, vzTag = item.split('/')
-                    l.log(f'Resubmit Jobs {cnt} / {n}: {jobId} - {scanTag} - {vzTag}')
+                    if jobId == 'merge': # this is a special condition... just ignore it as we will redo merge process
+                        continue
+                    l.log(f'Resubmit Jobs {cnt}: {jobId} - {scanTag} - {vzTag}')
                     os.system(f'cd {outDir}/{jobId} && condor_submit {scanTag}.{vzTag}.{jobId[3:]}.getTerms.job')
                     cnt += 1
             l.log('All done!')
