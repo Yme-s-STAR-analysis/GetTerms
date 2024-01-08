@@ -1,6 +1,15 @@
 # Quick Start
 
+Version: 3.4
+
+8.1.2023 - Yige Huang
+
+Updates:
+
+1. New feature for manager system: find the failed jobs and resubmit them.
+
 Version: 3.3
+
 22.12.2023 - Yige Huang
 
 Updates:
@@ -8,6 +17,7 @@ Updates:
 1. Now support pT scan as well.
 
 Version: 3.2
+
 15.12.2023 - Yige Huang
 
 Updates:
@@ -17,6 +27,7 @@ Updates:
 2. Centrality tool are updated correspondingly
 
 Version: 3.1
+
 30.10.2023 - Yige Huang
 
 Updates:
