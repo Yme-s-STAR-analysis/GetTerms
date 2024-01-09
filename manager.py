@@ -588,6 +588,7 @@ if mode == 'resubmit':
                     if jobId == 'merge': # this is a special condition... just ignore it as we will redo merge process
                         continue
                     l.log(f'Resubmit Jobs {cnt}: {jobId} - {scanTag} - {vzTag}')
+                    os.system(f'rm -rf {outDir}/{jobId}/{scanTag}.{vzTag}.root')
                     os.system(f'cd {outDir}/{jobId} && condor_submit {scanTag}.{vzTag}.{jobId[3:]}.getTerms.job')
                     cnt += 1
             l.log('All done!')
