@@ -1,5 +1,13 @@
 # Quick Start
 
+Version: 3.5
+
+12.1.2024 - Yige Huang
+
+Updates:
+
+1. 2 more rapidity bins for efficiency loader
+
 Version: 3.4
 
 8.1.2023 - Yige Huang
