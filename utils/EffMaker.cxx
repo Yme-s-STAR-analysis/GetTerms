@@ -147,6 +147,7 @@ int EffMaker::VzSplit(double vz) {
 int EffMaker::YPSplit(double y) {
     /*
         v3.0 new
+        v3.5 2 more bins
     */
    if (-0.5 < y && y < -0.4) { return 0; }
    else if (-0.4 < y && y < -0.3) { return 1; }
@@ -158,5 +159,7 @@ int EffMaker::YPSplit(double y) {
    else if (0.2 < y && y < 0.3) { return 7; }
    else if (0.3 < y && y < 0.4) { return 8; }
    else if (0.4 < y && y < 0.5) { return 9; }
+   else if (-0.6 < y && y < -0.5) { return 10; }
+   else if (0.5 < y && y < 0.6) { return 11; }
    else { return -1; }
 }

@@ -1,5 +1,11 @@
 /*
 
+    Version 3.5 (12.01.2024)
+
+    1. Now the efficiency files includes 0.5 to 0.6 rapidity bins (2 more rapidity index)
+
+    > And here EffMaker are changed accordingly
+
     Version 3.0 (16.10.2023)
 
     1. Now try read efficiency from root file. NOTE: needs root6!
@@ -49,7 +55,9 @@ class EffMaker{
         TH2F* th2;
 
         // version 3
-        static const int nY = 10;
+        // static const int nY = 10;
+        // version 3.5
+        static const int nY = 12;
         TF1* ftpc_pro[nCent][nVz][nY];
         TF1* ftpc_pbar[nCent][nVz][nY];
         TF1* ftof_pro[nCent][nVz][nY];
