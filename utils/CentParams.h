@@ -2,6 +2,8 @@
 #define __CENT_TOOL_CONFXXX__
 
 namespace cent_conf {
+
+    static const int CentCorrToolPatch = 5;
     
     // The name and mode are used to check in the LOG file if the wrong parameter file is used.
     static const char* Name = "14p6";
@@ -14,7 +16,7 @@ namespace cent_conf {
 
     static const int nTrg = 1;
     static int trgList[nTrg] = {
-        650000
+        650000,
     };
 
     // Pile-up parameters
@@ -47,15 +49,25 @@ namespace cent_conf {
     static double lumi_par[nTrg][2] = { // please follow the order of trigger id
         {0, 0}
     };
+    static double lumi_parX[nTrg][2] = { // please follow the order of trigger id
+        {0, 0}
+    };
 
     // vz arguments
     static double vz_par[nTrg][7] = { // please follow the order of trigger id
         {531.56	,-0.0259305	,0.00209309	,5.81154e-06	,-1.75629e-06	,-1.31774e-09	,2.44224e-10}
     };
+    static double vz_parX[nTrg][7] = { // please follow the order of trigger id
+        {715.902,-0.0282652	,-0.00746522,4.36012e-07	,-1.47285e-06	,-3.51241e-10	,2.59116e-10}
+    };
       
     // centrality split with RefMult3
     static int cent_edge[9] = { // here fill in the centrality bin edge 
-        439, 366, 255, 173, 113, 70, 40, 22, 11
+        492, 413, 288, 196, 128, 79, 46, 24, 12
+    };
+    // with RefMult3X
+    static int cent_edgeX[9] = { // here fill in the centrality bin edge 
+        596, 498, 347, 236, 154, 95, 55, 29, 14
     };
 
 } // namespace cent_conf

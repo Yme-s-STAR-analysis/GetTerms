@@ -1,5 +1,9 @@
 /*
 
+	Version: 4.0 (30.1.2024)
+
+	1. Support RefMult3X
+
 	Version: 3.2 (15.12.2023)
 
 	1. DCAxy/z cut here are deprecated, (see QualityController module)
@@ -101,6 +105,9 @@ int main(int argc, char** argv){
     TH2D* hNpRef3 = new TH2D("hNprotonRefMult3", ";RefMult3;N_{proton}", 850, -0.5, 849.5, 100, -0.5, 99.5);
     TH2D* hNaRef3 = new TH2D("hNantiprotonRefMult3", ";RefMult3;N_{antiproton}", 850, -0.5, 849.5, 30, -0.5, 29.5);
     TH2D* hNnRef3 = new TH2D("hNnetprotonRefMult3", ";RefMult3;N_{net-proton}", 850, -0.5, 849.5, 80, -10.5, 69.5);
+    TH2D* hNpRef3X = new TH2D("hNprotonRefMult3X", ";RefMult3X;N_{proton}", 1050, -0.5, 1049.5, 100, -0.5, 99.5);
+    TH2D* hNaRef3X = new TH2D("hNantiprotonRefMult3X", ";RefMult3X;N_{antiproton}", 1050, -0.5, 1049.5, 30, -0.5, 29.5);
+    TH2D* hNnRef3X = new TH2D("hNnetprotonRefMult3X", ";RefMult3X;N_{net-proton}", 1050, -0.5, 1049.5, 80, -10.5, 69.5);
 
   	std::cout << "[LOG] There will be " << nentries << " events.\n";
 
@@ -129,6 +136,8 @@ int main(int argc, char** argv){
 	cent_def->SetDoBetaPileUp(true);
 	cent_def->SetDoLumi(false);
 	cent_def->SetDoVz(true);
+	cent_def->SetDoLumiX(false);
+	cent_def->SetDoVzX(true);
 	cent_def->ReadParams();
 
 	// efficiency items here (for uncorrected case, just ignore them is okey)
@@ -146,6 +155,9 @@ int main(int argc, char** argv){
 	Loader* lder_n = new Loader("Netp", MaxMult);
 	Loader* lder_p = new Loader("Pro", MaxMult);
 	Loader* lder_a = new Loader("Pbar", MaxMult);
+	Loader* lder_nX = new Loader("Netp", MaxMult);
+	Loader* lder_pX = new Loader("Pro", MaxMult);
+	Loader* lder_aX = new Loader("Pbar", MaxMult);
 
   	for (int iEntry = 0; iEntry < nentries; iEntry++){
 		if (iEntry != 0 && iEntry % 100000 == 0){
@@ -158,17 +170,13 @@ int main(int argc, char** argv){
 		double vz = event->GetVz();
 		double vr = event->GetVr();
 		double refMult3 = event->GetRefMult3();
+		double refMult3X = event->GetRefMult3X();
 		int centBin = cent_def->GetCentrality9(refMult3);
-		if (refMult3 > MaxMult){
-			continue;
-		}
-		if (centBin < 0){
-			continue;
-		}
+		int centBinX = cent_def->GetCentrality9(refMult3X, true);
+		if (refMult3 > MaxMult || refMult3X > MaxMult){ continue; }
+		if (centBin < 0 || centBinX < 0){ continue; }
 
-		if (qc->isBadEvent(vz, vr)) {
-			continue;
-		}
+		if (qc->isBadEvent(vz, vr)) { continue; }
 
 		// Int_t runId = event->GetRunId(); // uncomment this block if need bad run checker
 		// if (cker.isBadRun(runId)){ 
@@ -198,23 +206,16 @@ int main(int argc, char** argv){
 			
 			// Here is the PID selection: use TOF or not
 			bool needTOF = false;
-			if (fYP < 0.6 && pt > 0.8) {
-				needTOF = true;
-			}
-			if (fYP > 0.6 && pt > 0.7) {
-				needTOF = true;
-			}
+			if (fYP < 0.6 && pt > 0.8) { needTOF = true; }
+			if (fYP > 0.6 && pt > 0.7) { needTOF = true; }
 
 			// Make track Cut
 			if (qc->isBadTrack(pt, YP, nHitsFit, nHitsDedx, 1.0, nSig, dca, needTOF, mass2)) {
 				continue;
 			} // nHitsRatio quantity is already cut when generating the tree
 
-			if (positive) { 
-				np ++; 
-			} else {
-				na ++;
-			}
+			np += positive;
+			na += !positive;
 
 			// detector efficiency
 
@@ -222,47 +223,77 @@ int main(int argc, char** argv){
 			double eff = 1.0;
 			double tpc_eff = effMaker->GetTpcEff(positive, pt, YP, centBin, vz);
 			double tof_eff = effMaker->GetTofEff(positive, pt, YP, centBin, vz);
+
+			double effX = 1.0;
+			double tpc_effX = effMaker->GetTpcEff(positive, pt, YP, centBinX, vz);
+			double tof_effX = effMaker->GetTofEff(positive, pt, YP, centBinX, vz);
+
 			double pid_eff = effMaker->GetPidEff(positive, pcm, vz);
 
 			if (needTOF) {
 				eff = tpc_eff * tof_eff * pid_eff;
+				effX = tpc_effX * tof_effX * pid_eff;
 			} else {
 				eff = tpc_eff * pid_eff;
+				effX = tpc_effX * pid_eff;
 			}
 
-			if (positive) { eff *= eff_factor_pro; } 
-			else { eff *= eff_factor_pbar; }
+			if (positive) { 
+				eff *= eff_factor_pro; 
+				effX *= eff_factor_pro; 
+			} 
+			else { 
+				eff *= eff_factor_pbar; 
+				effX *= eff_factor_pbar; 
+			}
 
             eff = eff > 1.0 ? 1.0 : eff;
+            effX = effX > 1.0 ? 1.0 : effX;
 			
 			if (positive) {
 				lder_p->ReadTrack(1.0, eff);
 				lder_n->ReadTrack(1.0, eff);
+				lder_pX->ReadTrack(1.0, effX);
+				lder_nX->ReadTrack(1.0, effX);
 			} else {
 				lder_a->ReadTrack(1.0, eff);
 				lder_n->ReadTrack(-1.0, eff);
+				lder_aX->ReadTrack(1.0, effX);
+				lder_nX->ReadTrack(-1.0, effX);
 			}
 		} // track loop ends
 
 		lder_p->Store(refMult3);
 		lder_a->Store(refMult3);
 		lder_n->Store(refMult3);
+		lder_pX->Store(refMult3X);
+		lder_aX->Store(refMult3X);
+		lder_nX->Store(refMult3X);
 
         hNpRef3->Fill(refMult3, np);
         hNaRef3->Fill(refMult3, na);
         hNnRef3->Fill(refMult3, np - na);
+        hNpRef3X->Fill(refMult3X, np);
+        hNaRef3X->Fill(refMult3X, na);
+        hNnRef3X->Fill(refMult3X, np - na);
 
   	} // event loop ends
 
 	lder_p->Save(Form("%s.root", task_tag));
 	lder_a->Update(Form("%s.root", task_tag));
 	lder_n->Update(Form("%s.root", task_tag));
+	lder_pX->Save(Form("%sX.root", task_tag));
+	lder_aX->Update(Form("%sX.root", task_tag));
+	lder_nX->Update(Form("%sX.root", task_tag));
 
     TFile* p_dist_file = new TFile(Form("%s.pDist.root", task_tag), "recreate");
     p_dist_file->cd();
     hNpRef3->Write();
     hNaRef3->Write();
     hNnRef3->Write();
+    hNpRef3X->Write();
+    hNaRef3X->Write();
+    hNnRef3X->Write();
     p_dist_file->Close();
 
 	std::cout << "[LOG] - From Core: This is the end of getTerms." << std::endl;

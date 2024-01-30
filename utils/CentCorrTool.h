@@ -2,9 +2,9 @@
 #define __CENT_TOOL_HEADER__
 
 /*
-    Version: 4.0
+    Version: 5.0
     Author: yghuang
-    Date: 22.11.2023
+    Date: 23.01.2024
 */
 
 #include <iostream>
@@ -13,6 +13,8 @@
 class CentCorrTool {
 
     private:
+
+        static const int PatchNumber = 5;
 
         static const int MAX_TRG = 10; // the maximum of triggers
         int nTrg; // actual number of triggers, will be read from config file
@@ -33,15 +35,25 @@ class CentCorrTool {
         double kLumi[MAX_TRG];
         double bLumi[MAX_TRG];
         bool doLumi;
+        // v4.1 new: interfaces for RefMult3X
+        double kLumiX[MAX_TRG];
+        double bLumiX[MAX_TRG];
+        bool doLumiX;
 
         // vz correction parameters
         double parVz[MAX_TRG][7]; // 6-order poly + constant
         TF1* funcVz;
         bool doVz;
+        // v4.1 new: interfaces for RefMult3X
+        double parVzX[MAX_TRG][7]; // 6-order poly + constant
+        TF1* funcVzX;
+        bool doVzX;
 
         // centrality split with bin edge
         double centSplitEdge[9];
         bool doSplit;
+        double centSplitEdgeX[9];
+        bool doSplitX;
 
     public:
         CentCorrTool();
@@ -73,17 +85,33 @@ class CentCorrTool {
         void SetDoLumi(bool do_) {
             doLumi = do_;
             if (do_) {
-                std::cout << "[LOG] - luminosity correction: " << "ON" <<std::endl;
+                std::cout << "[LOG] - luminosity correction (RefMult3): " << "ON" <<std::endl;
             } else {
-                std::cout << "[LOG] - luminosity correction: " << "OFF" <<std::endl;
+                std::cout << "[LOG] - luminosity correction (RefMult3): " << "OFF" <<std::endl;
+            }
+        }
+        void SetDoLumiX(bool do_) {
+            doLumiX = do_;
+            if (do_) {
+                std::cout << "[LOG] - luminosity correction (RefMult3X): " << "ON" <<std::endl;
+            } else {
+                std::cout << "[LOG] - luminosity correction (RefMult3X): " << "OFF" <<std::endl;
             }
         }
         void SetDoVz(bool do_) {
             doVz = do_;
             if (do_) {
-                std::cout << "[LOG] - Vz correction: " << "ON" <<std::endl;
+                std::cout << "[LOG] - Vz correction (RefMult3): " << "ON" <<std::endl;
             } else {
-                std::cout << "[LOG] - Vz correction: " << "OFF" <<std::endl;
+                std::cout << "[LOG] - Vz correction (RefMult3): " << "OFF" <<std::endl;
+            }
+        }
+        void SetDoVzX(bool do_) {
+            doVzX = do_;
+            if (do_) {
+                std::cout << "[LOG] - Vz correction (RefMult3X): " << "ON" <<std::endl;
+            } else {
+                std::cout << "[LOG] - Vz correction (RefMult3X): " << "OFF" <<std::endl;
             }
         }
         
@@ -174,7 +202,18 @@ class CentCorrTool {
                 bLumi[trg] = b;
             }
         }
-        int LumiCorrection(int trg, int ref3, int zdcx);
+
+        // -------------------------------------------------------------------
+        // - luminosity settings for RefMult3X
+        void SetLumiParamX(int trgid, double k, double b) {
+            int trg = ConvertTrg(trgid);
+            if (trg != -1) {
+                kLumiX[trg] = k;
+                bLumiX[trg] = b;
+            }
+        }
+
+        int LumiCorrection(int trg, int ref3, int zdcx, bool withX=false);
 
         // -------------------------------------------------------------------
         // - vz settings
@@ -202,11 +241,37 @@ class CentCorrTool {
             funcVz->SetParameters(&parVz[trg][0]);
         }
 
-        int VzCorrection(int trg, int ref3, double vz);
+        // -------------------------------------------------------------------
+        // - vz settings for RefMult3X
+        void SetVzParamX(int trgid, double p0, double p1, double p2, double p3, double p4, double p5, double p6) {
+            int trg = ConvertTrg(trgid);
+            parVzX[trg][0] = p0;
+            parVzX[trg][1] = p1;
+            parVzX[trg][2] = p2;
+            parVzX[trg][3] = p3;
+            parVzX[trg][4] = p4;
+            parVzX[trg][5] = p5;
+            parVzX[trg][6] = p6;
+            funcVzX->SetParameters(&parVzX[trg][0]);
+        }
+
+        void SetVzParamX(int trgid, double* p) {
+            int trg = ConvertTrg(trgid);
+            parVzX[trg][0] = *(p+0);
+            parVzX[trg][1] = *(p+1);
+            parVzX[trg][2] = *(p+2);
+            parVzX[trg][3] = *(p+3);
+            parVzX[trg][4] = *(p+4);
+            parVzX[trg][5] = *(p+5);
+            parVzX[trg][6] = *(p+6);
+            funcVzX->SetParameters(&parVzX[trg][0]);
+        }
+
+        int VzCorrection(int trg, int ref3, double vz, bool withX=false);
 
         // -------------------------------------------------------------------
         // - do correction
-        int GetRefMult3Corr(int refmult, int ref3, int nTofMatch, int nTofBeta, double zdcx, double vz, int trgid);
+        int GetRefMult3Corr(int refmult, int ref3, int nTofMatch, int nTofBeta, double zdcx, double vz, int trgid, bool withX=false);
 
         // -------------------------------------------------------------------
         // - centrality split functions
@@ -221,7 +286,7 @@ class CentCorrTool {
             centSplitEdge[7] = e7;
             centSplitEdge[8] = e8;
             doSplit = true;
-            std::cout << "[LOG] - Centrality bin edge specified.\n";
+            std::cout << "[LOG] - Centrality bin edge (RefMult3) specified.\n";
         }
 
         void SetCentEdge(int* arr) {
@@ -229,10 +294,33 @@ class CentCorrTool {
                 centSplitEdge[i] = *(arr+i);
             }
             doSplit = true;
-            std::cout << "[LOG] - Centrality bin edge specified.\n";
+            std::cout << "[LOG] - Centrality bin edge (RefMult3) specified.\n";
         }
 
-        int GetCentrality9(int ref3);
+        // -------------------------------------------------------------------
+        // - centrality split functions for RefMult3X
+        void SetCentEdgeX(int e0, int e1, int e2, int e3, int e4, int e5, int e6, int e7, int e8) {
+            centSplitEdgeX[0] = e0;
+            centSplitEdgeX[1] = e1;
+            centSplitEdgeX[2] = e2;
+            centSplitEdgeX[3] = e3;
+            centSplitEdgeX[4] = e4;
+            centSplitEdgeX[5] = e5;
+            centSplitEdgeX[6] = e6;
+            centSplitEdgeX[7] = e7;
+            centSplitEdgeX[8] = e8;
+            doSplitX = true;
+            std::cout << "[LOG] - Centrality bin edge (RefMult3X) specified.\n";
+        }
+        void SetCentEdgeX(int* arr) {
+            for (int i=0; i<9; i++) {
+                centSplitEdgeX[i] = *(arr+i);
+            }
+            doSplitX = true;
+            std::cout << "[LOG] - Centrality bin edge (RefMult3X) specified.\n";
+        }
+
+        int GetCentrality9(int ref3, bool withX=false);
 
 };
 
