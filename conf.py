@@ -1,18 +1,18 @@
 r'''
-    Version: 3.3
-    Date: 22.12.2023
+    Version: 4.0
+    Date: 30.01.2024
 '''
 
 class Args:
     nFilesPerJob = 30
-    targetDir = '/star/u/yghuang/pwgdata/DataAnalysis/BES2/17p3/cumulant/231011_1'
+    targetDir = '/star/u/yghuang/pwgdata/DataAnalysis/BES2/14p6/cumulant/240130/corr/default'
     outDir = f'{targetDir}/job'
     mergeDir = f'{targetDir}/merge'
     runDir = f'{targetDir}/run'
-    fileList = '/star/u/yghuang/Work/DataAnalysis/BES2/17p3/cumulant/AceTree/ace.file.list'
-    tpc_eff_path = 'none'
-    tof_eff_path = 'none'
-    pid_eff_path = 'none'
+    fileList = '/star/u/yghuang/Work/DataAnalysis/BES2/14p6/cumulant/AceTree/ace.out.list'
+    tpc_eff_path = '/star/u/yghuang/Work/DataAnalysis/BES2/14p6/Efficiency/SysErr/SysErrEffFiles/default.TpcEff.root'
+    tof_eff_path = '/star/u/yghuang/Work/DataAnalysis/BES2/14p6/Efficiency/SysErr/SysErrEffFiles/default.TofEff.root'
+    pid_eff_path = '/star/u/yghuang/Work/DataAnalysis/BES2/14p6/Efficiency/EffFiles/PidEff.root'
     nSigmaTag = '2p0'
     eff_fac_pro = 1.0
     eff_fac_pbar = 1.0
@@ -22,7 +22,7 @@ class Args:
     title = 'default'
 
 class CutArgs:
-    vzBin = 5
+    vzBin = 1
     vzRange = 50 # this works only when vzBin is 1
     vr = 2.0
     DCAz = 30.0
@@ -54,15 +54,20 @@ class CutArgs:
     yMax = 0.5 # these values will be default
     yMode = 1  # y min/max and mode (-0.5~0.5)
     yMins = [
-        0.0, 0.0, 0.0, 0.0, 0.0
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     ]
     yMaxs = [
-        0.1, 0.2, 0.3, 0.4, 0.5
+        0.1, 0.2, 0.3, 0.4, 0.5, 0.6
     ]
     yModes = [ # 1 for absolute value of y and 2 for specified range
-        1, 1, 1, 1, 1
+        1, 1, 1, 1, 1, 1
     ]
     yTags = [
-        '0p1', "0p2", "0p3", "0p4", "0p5"
+        '0p1',
+        "0p2",
+        "0p3",
+        "0p4",
+        "0p5",
+        "0p6"
     ]
 
