@@ -212,7 +212,7 @@ if (mode in ['sub', 'submit']):
             # prepare y scan
             if CutArgs.yScan:
                 for item, ymin, ymax, ymode in zip(CutArgs.yTags, CutArgs.yMins, CutArgs.yMaxs, CutArgs.yModes):
-                    with open(f'y{item}.vz{vzIdx}.getTerms.cfg', 'w') as f:
+                    with open(f'{Args.title}.y{item}.vz{vzIdx}.getTerms.cfg', 'w') as f:
                         # for high rapidity scan, reduce the vz range
                         vzMinTmp = vzMin
                         vzMaxTmp = vzMax
@@ -228,7 +228,7 @@ if (mode in ['sub', 'submit']):
             # prepare pt scan
             if CutArgs.ptScan:
                 for item, ptmax in zip(CutArgs.ptTags, CutArgs.ptMaxs):
-                    with open(f'pt{item}.vz{vzIdx}.getTerms.cfg', 'w') as f:
+                    with open(f'{Args.title}.pt{item}.vz{vzIdx}.getTerms.cfg', 'w') as f:
                         f.write(f'VARLIST\n')
                         f.write(f'VZ\t{vzMin}\t{vzMax}\nVR\t{CutArgs.vr}\nDCAZ\t{CutArgs.DCAz}\nDCAXY\t{CutArgs.DCAxy}\n')
                         f.write(f'PT\t{CutArgs.ptMin}\t{ptmax}\nYP\t{CutArgs.yMin}\t{CutArgs.yMax}\nNHITSFIT\t{CutArgs.nHitsFit}\nNHITSDEDX\t{CutArgs.nHitsDedx}\nNHITSRATIO\t{CutArgs.nHitsRatio}\n')
@@ -287,15 +287,15 @@ if (mode in ['sub', 'submit']):
                 # for y scan
                 if CutArgs.yScan:
                     for item in CutArgs.yTags:
-                        if os.path.exists(f'{tdir}/y{item}.vz{vzIdx}.getTerms.cfg'):
-                            os.system(f'rm {tdir}/y{item}.vz{vzIdx}.getTerms.cfg')
-                        os.symlink(f'{os.getcwd()}/y{item}.vz{vzIdx}.getTerms.cfg', f'{tdir}/y{item}.vz{vzIdx}.getTerms.cfg')
+                        if os.path.exists(f'{tdir}/{Args.title}.y{item}.vz{vzIdx}.getTerms.cfg'):
+                            os.system(f'rm {tdir}/{Args.title}.y{item}.vz{vzIdx}.getTerms.cfg')
+                        os.symlink(f'{os.getcwd()}/{Args.title}.y{item}.vz{vzIdx}.getTerms.cfg', f'{tdir}/{Args.title}.y{item}.vz{vzIdx}.getTerms.cfg')
                 # for pt scan
                 if CutArgs.ptScan:
                     for item in CutArgs.ptTags:
-                        if os.path.exists(f'{tdir}/pt{item}.vz{vzIdx}.getTerms.cfg'):
-                            os.system(f'rm {tdir}/pt{item}.vz{vzIdx}.getTerms.cfg')
-                        os.symlink(f'{os.getcwd()}/pt{item}.vz{vzIdx}.getTerms.cfg', f'{tdir}/pt{item}.vz{vzIdx}.getTerms.cfg')
+                        if os.path.exists(f'{tdir}/{Args.title}.pt{item}.vz{vzIdx}.getTerms.cfg'):
+                            os.system(f'rm {tdir}/{Args.title}.pt{item}.vz{vzIdx}.getTerms.cfg')
+                        os.symlink(f'{os.getcwd()}/{Args.title}.pt{item}.vz{vzIdx}.getTerms.cfg', f'{tdir}/{Args.title}.pt{item}.vz{vzIdx}.getTerms.cfg')
 
         l.log('Done.')
 
