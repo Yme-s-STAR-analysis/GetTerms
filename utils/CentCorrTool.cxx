@@ -64,6 +64,7 @@ void CentCorrTool::ReadParams() {
     }
 
     SetCentEdge(cent_conf::cent_edge);
+    SetCentEdgeX(cent_conf::cent_edgeX);
 }
 
 int CentCorrTool::ConvertTrg(int trg) {
