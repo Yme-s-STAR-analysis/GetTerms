@@ -247,7 +247,7 @@ if (mode in ['sub', 'submit']):
                 # for y scan
                 if CutArgs.yScan:
                     for item in CutArgs.yTags:
-                        os.system(f'cp getTerms.sh {tdir}/{Args.title}.{Args.title}.{i}.y{item}.vz{vzIdx}.getTerms.sh')
+                        os.system(f'cp getTerms.sh {tdir}/{Args.title}.{i}.y{item}.vz{vzIdx}.getTerms.sh')
                         os.system(f'sed -i "s|TPC_PATH|{Args.tpc_eff_path}|g" {tdir}/{Args.title}.{i}.y{item}.vz{vzIdx}.getTerms.sh')
                         os.system(f'sed -i "s|TOF_PATH|{Args.tof_eff_path}|g" {tdir}/{Args.title}.{i}.y{item}.vz{vzIdx}.getTerms.sh')
                         os.system(f'sed -i "s|PID_PATH|{Args.pid_eff_path}|g" {tdir}/{Args.title}.{i}.y{item}.vz{vzIdx}.getTerms.sh')
