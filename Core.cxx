@@ -150,16 +150,20 @@ int main(int argc, char** argv){
 
 	StFemtoEvent *event = new StFemtoEvent();
 	chain->SetBranchAddress("StFemtoEvent", &event);
-	int MaxMult = 2000;
+	int MaxMult = 900;
 
-	Loader* lder_n = new Loader("Netp", MaxMult);
-	Loader* lder_p = new Loader("Pro", MaxMult);
-	Loader* lder_a = new Loader("Pbar", MaxMult);
-	Loader* lder_nX = new Loader("Netp", MaxMult);
-	Loader* lder_pX = new Loader("Pro", MaxMult);
-	Loader* lder_aX = new Loader("Pbar", MaxMult);
+	TFile* terms3 = new TFile(Form("%s.root", task_tag), "recreate");
+	Loader* lder_n = new Loader("Netp", terms3, MaxMult);
+	Loader* lder_p = new Loader("Pro", terms3, MaxMult);
+	Loader* lder_a = new Loader("Pbar", terms3, MaxMult);
+	
+	TFile* terms3X = new TFile(Form("%sX.root", task_tag), "recreate");
+	Loader* lder_nX = new Loader("Netp", terms3X, MaxMult);
+	Loader* lder_pX = new Loader("Pro", terms3X, MaxMult);
+	Loader* lder_aX = new Loader("Pbar", terms3X, MaxMult);
 
   	for (int iEntry = 0; iEntry < nentries; iEntry++){
+		if (iEntry >= 200) break;
 		if (iEntry != 0 && iEntry % 100000 == 0){
 			std::cout << "[LOG]: - From core: " << iEntry << " events finshed.\n";
 		}
@@ -278,13 +282,13 @@ int main(int argc, char** argv){
         hNnRef3X->Fill(refMult3X, np - na);
 
   	} // event loop ends
-
-	lder_p->Save(Form("%s.root", task_tag));
-	lder_a->Update(Form("%s.root", task_tag));
-	lder_n->Update(Form("%s.root", task_tag));
-	lder_pX->Save(Form("%sX.root", task_tag));
-	lder_aX->Update(Form("%sX.root", task_tag));
-	lder_nX->Update(Form("%sX.root", task_tag));
+	
+	terms3->cd();
+	terms3->Write();
+	terms3->Close();
+	terms3X->cd();
+	terms3X->Write();
+	terms3X->Close();
 
     TFile* p_dist_file = new TFile(Form("%s.pDist.root", task_tag), "recreate");
     p_dist_file->cd();
