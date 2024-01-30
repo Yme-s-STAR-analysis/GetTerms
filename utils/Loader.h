@@ -11,12 +11,12 @@ class TFile;
 class Loader {
 
   public:
-    Loader(const char*, int);
+    Loader(const char*, TFile*, int);
     ~Loader();
     void ReadTrack(float, float);
     void Store(int);
-    void Save(const char*);
-    void Update(const char*);
+    // void Save(const char*);
+    // void Update(const char*);
 
   private:
     int _nMultBin;

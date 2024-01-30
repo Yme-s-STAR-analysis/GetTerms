@@ -1,43 +1,44 @@
+// Yige Huang -- 30.01.2024 update
 //Zhang Yu -- Dec 2020
 #include "TProfile.h"
 #include "TH1D.h"
 #include "TFile.h"
 #include "Loader.h"
 
-Loader::Loader(const char* type, int MaxMult) : ParticleType(type), _nMultBin(MaxMult+1){
-  for(int r=1;r<=6;++r){
-    for(int s=1; s<=r;++s){
-      _q[r][s] = 0;
-    }
-  }
-  for(int i=1;i<=_nTerms;++i){
-    _V[i] = new TProfile(Form("%s_%s", ParticleType, Terms[i-1]),"", _nMultBin, -0.5, _nMultBin-0.5);
-  }
+Loader::Loader(const char* type, TFile* tf, int MaxMult) : ParticleType(type), _nMultBin(MaxMult+1) {
+	for(int r=1;r<=6;++r) {
+		for(int s=1; s<=r;++s) {
+			_q[r][s] = 0;
+		}
+  	}
+	tf->cd();
+  	for(int i=1;i<=_nTerms;++i) {
+		_V[i] = new TProfile(Form("%s_%s", ParticleType, Terms[i-1]),"", _nMultBin, -0.5, _nMultBin-0.5);
+		_V[i]->SetDirectory(tf->CurrentDirectory());
+  	}
 }
 
-
-Loader::~Loader(){
-  for(int i=1;i<=_nTerms;++i){
-    delete _V[i];
-  }
+Loader::~Loader() {
+  	for(int i=1;i<=_nTerms;++i) {
+		delete _V[i];
+  	}
 }
 
-void Loader::ReadTrack(float Particle, float eff){
-
-  for(int r=1;r<=6; ++r){
-    for(int s=1; s<=r; ++s){
-      _q[r][s] += (pow(Particle,r)/pow(eff, s));
-    }
-  }
-
+void Loader::ReadTrack(float Particle, float eff) {
+  	for(int r=1;r<=6; ++r){
+		for(int s=1; s<=r; ++s) {
+	  		_q[r][s] += (pow(Particle,r)/pow(eff, s));
+		}
+  	}
 }
 
+/*
 void Loader::Save(const char* OutName = "TempObj.root"){
 
   TFile *out = new TFile(OutName, "recreate");
   out->cd();
   for(int i=1; i<=_nTerms; ++i){
-    _V[i]->Write();
+	_V[i]->Write();
   }
   out->Close();
 }
@@ -47,10 +48,11 @@ void Loader::Update(const char* OutName = "TempObj.root"){
   TFile *out = new TFile(OutName, "update");
   out->cd();
   for(int i=1; i<=_nTerms; ++i){
-    _V[i]->Write();
+	_V[i]->Write();
   }
   out->Close();
 }
+*/
 
 
 
@@ -2594,9 +2596,9 @@ void Loader::Store(int RefMult){
   _V[2535]->Fill(RefMult, _q[1][1]);
   //xxxxxxxxxxxxxxxxxxxxxxxxxxx
   for(int r=1;r<=6; ++r){
-    for(int s=1; s<=r; ++s){
-      _q[r][s] = 0;
-    }
+	for(int s=1; s<=r; ++s){
+	  _q[r][s] = 0;
+	}
   }
 
 }
