@@ -156,14 +156,13 @@ int main(int argc, char** argv){
 	Loader* lder_n = new Loader("Netp", terms3, MaxMult);
 	Loader* lder_p = new Loader("Pro", terms3, MaxMult);
 	Loader* lder_a = new Loader("Pbar", terms3, MaxMult);
-	
+
 	TFile* terms3X = new TFile(Form("%sX.root", task_tag), "recreate");
 	Loader* lder_nX = new Loader("Netp", terms3X, MaxMult);
 	Loader* lder_pX = new Loader("Pro", terms3X, MaxMult);
 	Loader* lder_aX = new Loader("Pbar", terms3X, MaxMult);
 
   	for (int iEntry = 0; iEntry < nentries; iEntry++){
-		if (iEntry >= 200) break;
 		if (iEntry != 0 && iEntry % 100000 == 0){
 			std::cout << "[LOG]: - From core: " << iEntry << " events finshed.\n";
 		}
