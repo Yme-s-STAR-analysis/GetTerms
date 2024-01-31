@@ -480,15 +480,15 @@ if mode in ['run', 'calc']:
             if not os.path.exists(f'{runDir}/y{item}/Npart.txt'):
                 os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/y{item}/Npart.txt')
             for vzIdx in range(CutArgs.vzBin):
-                if os.path.exists(f'{runDir}/y{item}/y{item}.vz{vzIdx}.root'):
-                    os.remove(f'{runDir}/y{item}/y{item}.vz{vzIdx}.root')
-                os.symlink(f'{mergeDir}/y{item}.vz{vzIdx}.root', f'{runDir}/y{item}/y{item}.vz{vzIdx}.root')
-                os.system(f'cp calc.sh {runDir}/y{item}/y{item}.vz{vzIdx}.calc.sh')
-                os.system(f'cp calc.job {runDir}/y{item}/y{item}.vz{vzIdx}.calc.job')
-                os.system(f'sed -i "s|TASKNAME|y{item}.vz{vzIdx}|g" {runDir}/y{item}/y{item}.vz{vzIdx}.calc.sh')
-                os.system(f'sed -i "s|SHELLNAME|y{item}.vz{vzIdx}.calc.sh|g" {runDir}/y{item}/y{item}.vz{vzIdx}.calc.job')
-                os.system(f'sed -i "s|TASKNAME|y{item}.vz{vzIdx}|g" {runDir}/y{item}/y{item}.vz{vzIdx}.calc.job')
-                os.system(f'cd {runDir}/y{item} && condor_submit y{item}.vz{vzIdx}.calc.job')
+                if os.path.exists(f'{runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.root'):
+                    os.remove(f'{runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.root')
+                os.symlink(f'{mergeDir}/{Args.title}.y{item}.vz{vzIdx}.root', f'{runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.root')
+                os.system(f'cp calc.sh {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.sh')
+                os.system(f'cp calc.job {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.job')
+                os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.sh')
+                os.system(f'sed -i "s|SHELLNAME|{Args.title}.y{item}.vz{vzIdx}.calc.sh|g" {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.job')
+                os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.job')
+                os.system(f'cd {runDir}/y{item} && condor_submit {Args.title}.y{item}.vz{vzIdx}.calc.job')
                 l.log(f' - Current y{item} - Vz {vzIdx}')
             # RefMult3X
             if not os.path.exists(f'{runDir}/y{item}X'):
@@ -496,19 +496,19 @@ if mode in ['run', 'calc']:
             if not os.path.exists(f'{runDir}/y{item}X/runCumulant'):
                 os.symlink(Args.calc_exec, f'{runDir}/y{item}X/runCumulant')
             if not os.path.exists(f'{runDir}/y{item}X/cent_edgeX.txt'):
-                os.symlink(f'{os.getcwd()}/cent_edgeX.txt', f'{runDir}/y{item}X/cent_edgeX.txt')
+                os.symlink(f'{os.getcwd()}/cent_edgeX.txt', f'{runDir}/y{item}X/cent_edge.txt')
             if not os.path.exists(f'{runDir}/y{item}X/Npart.txt'):
                 os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/y{item}X/Npart.txt')
             for vzIdx in range(CutArgs.vzBin):
-                if os.path.exists(f'{runDir}/y{item}X/y{item}.vz{vzIdx}X.root'):
-                    os.remove(f'{runDir}/y{item}X/y{item}.vz{vzIdx}X.root')
-                os.symlink(f'{mergeDir}/y{item}.vz{vzIdx}X.root', f'{runDir}/y{item}X/y{item}.vz{vzIdx}X.root')
-                os.system(f'cp calc.sh {runDir}/y{item}X/y{item}.vz{vzIdx}.calcX.sh')
-                os.system(f'cp calc.job {runDir}/y{item}X/y{item}.vz{vzIdx}.calc.job')
-                os.system(f'sed -i "s|TASKNAME|y{item}.vz{vzIdx}|g" {runDir}/y{item}X/y{item}.vz{vzIdx}.calcX.sh')
-                os.system(f'sed -i "s|SHELLNAME|y{item}.vz{vzIdx}.calc.sh|g" {runDir}/y{item}X/y{item}.vz{vzIdx}.calc.job')
-                os.system(f'sed -i "s|TASKNAME|y{item}.vz{vzIdx}|g" {runDir}/y{item}X/y{item}.vz{vzIdx}.calc.job')
-                os.system(f'cd {runDir}/y{item}X && condor_submit y{item}.vz{vzIdx}.calc.job')
+                if os.path.exists(f'{runDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}X.root'):
+                    os.remove(f'{runDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}X.root')
+                os.symlink(f'{mergeDir}/{Args.title}.y{item}.vz{vzIdx}X.root', f'{runDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}X.root')
+                os.system(f'cp calc.sh {runDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}.calcX.sh')
+                os.system(f'cp calc.job {runDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}.calc.job')
+                os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}X|g" {runDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}.calcX.sh')
+                os.system(f'sed -i "s|SHELLNAME|{Args.title}.y{item}.vz{vzIdx}.calcX.sh|g" {runDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}.calc.job')
+                os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}X|g" {runDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}.calc.job')
+                os.system(f'cd {runDir}/y{item}X && condor_submit {Args.title}.y{item}.vz{vzIdx}.calc.job')
                 l.log(f' - Current y{item} - Vz {vzIdx} (X)')
 
     if CutArgs.ptScan:
@@ -527,15 +527,15 @@ if mode in ['run', 'calc']:
                 os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/pt{item}/Npart.txt')
 
             for vzIdx in range(CutArgs.vzBin):
-                if os.path.exists(f'{runDir}/pt{item}/pt{item}.vz{vzIdx}.root'):
-                    os.remove(f'{runDir}/pt{item}/pt{item}.vz{vzIdx}.root')
-                os.symlink(f'{mergeDir}/pt{item}.vz{vzIdx}.root', f'{runDir}/pt{item}/pt{item}.vz{vzIdx}.root')
-                os.system(f'cp calc.sh {runDir}/pt{item}/pt{item}.vz{vzIdx}.calc.sh')
-                os.system(f'cp calc.job {runDir}/pt{item}/pt{item}.vz{vzIdx}.calc.job')
-                os.system(f'sed -i "s|TASKNAME|pt{item}.vz{vzIdx}|g" {runDir}/pt{item}/pt{item}.vz{vzIdx}.calc.sh')
-                os.system(f'sed -i "s|SHELLNAME|pt{item}.vz{vzIdx}.calc.sh|g" {runDir}/pt{item}/pt{item}.vz{vzIdx}.calc.job')
-                os.system(f'sed -i "s|TASKNAME|pt{item}.vz{vzIdx}|g" {runDir}/pt{item}/pt{item}.vz{vzIdx}.calc.job')
-                os.system(f'cd {runDir}/pt{item} && condor_submit pt{item}.vz{vzIdx}.calc.job')
+                if os.path.exists(f'{runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.root'):
+                    os.remove(f'{runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.root')
+                os.symlink(f'{mergeDir}/{Args.title}.pt{item}.vz{vzIdx}.root', f'{runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.root')
+                os.system(f'cp calc.sh {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.sh')
+                os.system(f'cp calc.job {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
+                os.system(f'sed -i "s|TASKNAME|{Args.title}.pt{item}.vz{vzIdx}|g" {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.sh')
+                os.system(f'sed -i "s|SHELLNAME|{Args.title}.pt{item}.vz{vzIdx}.calc.sh|g" {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
+                os.system(f'sed -i "s|TASKNAME|pt{item}.vz{vzIdx}|g" {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
+                os.system(f'cd {runDir}/pt{item} && condor_submit {Args.title}.pt{item}.vz{vzIdx}.calc.job')
                 l.log(f' - Current pt{item} - Vz {vzIdx}')
 
             # RefMult3X
@@ -549,14 +549,14 @@ if mode in ['run', 'calc']:
                 os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/pt{item}X/Npart.txt')
             for vzIdx in range(CutArgs.vzBin):
                 if os.path.exists(f'{runDir}/pt{item}X/pt{item}.vz{vzIdx}X.root'):
-                    os.remove(f'{runDir}/pt{item}X/pt{item}.vz{vzIdx}X.root')
-                os.symlink(f'{mergeDir}/pt{item}.vz{vzIdx}X.root', f'{runDir}/pt{item}X/pt{item}.vz{vzIdx}X.root')
-                os.system(f'cp calc.sh {runDir}/pt{item}X/pt{item}.vz{vzIdx}.calcX.sh')
-                os.system(f'cp calc.job {runDir}/pt{item}X/pt{item}.vz{vzIdx}.calc.job')
-                os.system(f'sed -i "s|TASKNAME|pt{item}.vz{vzIdx}|g" {runDir}/pt{item}X/pt{item}.vz{vzIdx}.calcX.sh')
-                os.system(f'sed -i "s|SHELLNAME|pt{item}.vz{vzIdx}.calc.sh|g" {runDir}/pt{item}X/pt{item}.vz{vzIdx}.calc.job')
-                os.system(f'sed -i "s|TASKNAME|pt{item}.vz{vzIdx}|g" {runDir}/pt{item}X/pt{item}.vz{vzIdx}.calc.job')
-                os.system(f'cd {runDir}/pt{item}X && condor_submit pt{item}.vz{vzIdx}.calc.job')
+                    os.remove(f'{runDir}/{Args.title}.pt{item}X/pt{item}.vz{vzIdx}X.root')
+                os.symlink(f'{mergeDir}/{Args.title}.pt{item}.vz{vzIdx}X.root', f'{runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}X.root')
+                os.system(f'cp calc.sh {runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}.calcX.sh')
+                os.system(f'cp calc.job {runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
+                os.system(f'sed -i "s|TASKNAME|{Args.title}.pt{item}.vz{vzIdx}X|g" {runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}.calcX.sh')
+                os.system(f'sed -i "s|SHELLNAME|{Args.title}.pt{item}.vz{vzIdx}.calcX.sh|g" {runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
+                os.system(f'sed -i "s|TASKNAME|{Args.title}.pt{item}.vz{vzIdx}X|g" {runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
+                os.system(f'cd {runDir}/pt{item}X && condor_submit {Args.title}.pt{item}.vz{vzIdx}.calc.job')
                 l.log(f' - Current pt{item} - Vz {vzIdx} (X)')
         
     l.log('All submitted!')
@@ -597,15 +597,15 @@ if mode in ['col', 'collect']:
     if CutArgs.yScan:
         for item in CutArgs.yTags:
             for vzIdx in range(CutArgs.vzBin):
-                os.system(f'cp {mergeDir}/y{item}.vz{vzIdx}.pDist.root {col}/')
-                os.system(f'cp {runDir}/y{item}/cum.cbwc.y{item}.vz{vzIdx}.root {col}/')
-                os.system(f'cp {runDir}/y{item}X/cum.cbwc.y{item}.vz{vzIdx}X.root {col}/')
+                os.system(f'cp {mergeDir}/{Args.title}.y{item}.vz{vzIdx}.pDist.root {col}/')
+                os.system(f'cp {runDir}/y{item}/cum.cbwc.{Args.title}.y{item}.vz{vzIdx}.root {col}/')
+                os.system(f'cp {runDir}/y{item}X/cum.cbwc.{Args.title}.y{item}.vz{vzIdx}X.root {col}/')
     if CutArgs.ptScan:
         for item in CutArgs.ptTags:
             for vzIdx in range(CutArgs.vzBin):
-                os.system(f'cp {mergeDir}/pt{item}.vz{vzIdx}.pDist.root {col}/')
-                os.system(f'cp {runDir}/pt{item}/cum.cbwc.pt{item}.vz{vzIdx}.root {col}/')
-                os.system(f'cp {runDir}/pt{item}X/cum.cbwc.pt{item}.vz{vzIdx}X.root {col}/')
+                os.system(f'cp {mergeDir}/{Args.title}.pt{item}.vz{vzIdx}.pDist.root {col}/')
+                os.system(f'cp {runDir}/pt{item}/cum.cbwc.{Args.title}.pt{item}.vz{vzIdx}.root {col}/')
+                os.system(f'cp {runDir}/pt{item}X/cum.cbwc.{Args.title}.pt{item}.vz{vzIdx}X.root {col}/')
     
     if os.path.exists(f'{col}.tgz'):
         l.log(f'Already have {col}.tgz now removing it.')
