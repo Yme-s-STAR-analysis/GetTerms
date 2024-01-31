@@ -3,7 +3,13 @@ r'''
     Cumulant Calculation Manage System
     Author: Yige HUANG
 
-    Latest Revision: v4.0 (30.1.2024) - Yige Huang
+    Latest Revision v4.0.1 (31.1.2024) - Yige Huang
+
+    1. Suggested number of files per job: 30 -> 10
+
+    2. Fix a minor bug in merge part
+    
+    Revision: v4.0 (30.1.2024) - Yige Huang
 
     1. Support RefMult3X
 
@@ -375,7 +381,7 @@ if mode in ['mer', 'merge']:
                 os.system(f'sed -i "s|MERDIR|{mergeDir}|g" {mergeDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}.mergeX.sh')
                 os.system(f'sed -i "s|SHELLNAME|{Args.title}.y{item}.vz{vzIdx}.merge.sh|g" {mergeDir}/y{item}X/{Args.title}.vz{vzIdx}.merge.job')
                 os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {mergeDir}/y{item}X/{Args.title}.vz{vzIdx}.merge.job')
-                os.system(f'cd {mergeDir}/y{item}X && condor_submit vz{vzIdx}.merge.job')
+                os.system(f'cd {mergeDir}/y{item}X && condor_submit {Args.title}.vz{vzIdx}.merge.job')
                 l.log(f' - Current y{item} - Vz {vzIdx} (X)')
             # proton number distribution
             pDist = f'y{item}.pDist'
@@ -384,13 +390,13 @@ if mode in ['mer', 'merge']:
             os.system(f'cp merge.py {mergeDir}/{pDist}')
             os.system(f'cp yLog.py {mergeDir}/{pDist}')
             for vzIdx in range(CutArgs.vzBin):
-                os.system(f'cp merge.sh {mergeDir}/{pDist}/{pDist}.vz{vzIdx}.merge.sh')
+                os.system(f'cp merge.sh {mergeDir}/{pDist}/{Args.title}.{pDist}.vz{vzIdx}.merge.sh')
                 os.system(f'cp merge.job {mergeDir}/{pDist}/{Args.title}.vz{vzIdx}.merge.job')
-                os.system(f'sed -i "s|TASKNAME|y{item}.vz{vzIdx}.pDist|g" {mergeDir}/{pDist}/{pDist}.vz{vzIdx}.merge.sh')
-                os.system(f'sed -i "s|OUTDIR|{outDir}|g" {mergeDir}/{pDist}/{pDist}.vz{vzIdx}.merge.sh')
-                os.system(f'sed -i "s|MERDIR|{mergeDir}|g" {mergeDir}/{pDist}/{pDist}.vz{vzIdx}.merge.sh')
-                os.system(f'sed -i "s|SHELLNAME|{pDist}.vz{vzIdx}.merge.sh|g" {mergeDir}/{pDist}/{Args.title}.vz{vzIdx}.merge.job')
-                os.system(f'sed -i "s|TASKNAME|y{item}.vz{vzIdx}.pDist|g" {mergeDir}/{pDist}/{Args.title}.vz{vzIdx}.merge.job')
+                os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}.pDist|g" {mergeDir}/{pDist}/{Args.title}.{pDist}.vz{vzIdx}.merge.sh')
+                os.system(f'sed -i "s|OUTDIR|{outDir}|g" {mergeDir}/{pDist}/{Args.title}.{pDist}.vz{vzIdx}.merge.sh')
+                os.system(f'sed -i "s|MERDIR|{mergeDir}|g" {mergeDir}/{pDist}/{Args.title}.{pDist}.vz{vzIdx}.merge.sh')
+                os.system(f'sed -i "s|SHELLNAME|{Args.title}.{pDist}.vz{vzIdx}.merge.sh|g" {mergeDir}/{pDist}/{Args.title}.vz{vzIdx}.merge.job')
+                os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}.pDist|g" {mergeDir}/{pDist}/{Args.title}.vz{vzIdx}.merge.job')
                 os.system(f'cd {mergeDir}/{pDist} && condor_submit {Args.title}.vz{vzIdx}.merge.job')
                 l.log(f' - Current {pDist} - Vz {vzIdx}')
     # for pt scan
@@ -433,14 +439,14 @@ if mode in ['mer', 'merge']:
             os.system(f'cp merge.py {mergeDir}/{pDist}')
             os.system(f'cp yLog.py {mergeDir}/{pDist}')
             for vzIdx in range(CutArgs.vzBin):
-                os.system(f'cp merge.sh {mergeDir}/{pDist}/{pDist}.vz{vzIdx}.merge.sh')
-                os.system(f'cp merge.job {mergeDir}/{pDist}/vz{vzIdx}.merge.job')
-                os.system(f'sed -i "s|TASKNAME|pt{item}.vz{vzIdx}.pDist|g" {mergeDir}/{pDist}/{pDist}.vz{vzIdx}.merge.sh')
-                os.system(f'sed -i "s|OUTDIR|{outDir}|g" {mergeDir}/{pDist}/{pDist}.vz{vzIdx}.merge.sh')
-                os.system(f'sed -i "s|MERDIR|{mergeDir}|g" {mergeDir}/{pDist}/{pDist}.vz{vzIdx}.merge.sh')
-                os.system(f'sed -i "s|SHELLNAME|{pDist}.vz{vzIdx}.merge.sh|g" {mergeDir}/{pDist}/vz{vzIdx}.merge.job')
-                os.system(f'sed -i "s|TASKNAME|pt{item}.vz{vzIdx}.pDist|g" {mergeDir}/{pDist}/vz{vzIdx}.merge.job')
-                os.system(f'cd {mergeDir}/{pDist} && condor_submit vz{vzIdx}.merge.job')
+                os.system(f'cp merge.sh {mergeDir}/{pDist}/{Args.title}.{pDist}.vz{vzIdx}.merge.sh')
+                os.system(f'cp merge.job {mergeDir}/{pDist}/{Args.title}.vz{vzIdx}.merge.job')
+                os.system(f'sed -i "s|TASKNAME|{Args.title}.pt{item}.vz{vzIdx}.pDist|g" {mergeDir}/{pDist}/{Args.title}.{pDist}.vz{vzIdx}.merge.sh')
+                os.system(f'sed -i "s|OUTDIR|{outDir}|g" {mergeDir}/{pDist}/{Args.title}.{pDist}.vz{vzIdx}.merge.sh')
+                os.system(f'sed -i "s|MERDIR|{mergeDir}|g" {mergeDir}/{pDist}/{Args.title}.{pDist}.vz{vzIdx}.merge.sh')
+                os.system(f'sed -i "s|SHELLNAME|{Args.title}.{pDist}.vz{vzIdx}.merge.sh|g" {mergeDir}/{pDist}/{Args.title}.vz{vzIdx}.merge.job')
+                os.system(f'sed -i "s|TASKNAME|{Args.title}.pt{item}.vz{vzIdx}.pDist|g" {mergeDir}/{pDist}/{Args.title}.vz{vzIdx}.merge.job')
+                os.system(f'cd {mergeDir}/{pDist} && condor_submit {Args.title}.vz{vzIdx}.merge.job')
                 l.log(f' - Current {pDist} - Vz {vzIdx}')
 
     l.log('All submitted!')

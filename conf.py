@@ -1,10 +1,10 @@
 r'''
-    Version: 4.0
-    Date: 30.01.2024
+    Version: 4.0.1
+    Date: 31.01.2024
 '''
 
 class Args:
-    nFilesPerJob = 30
+    nFilesPerJob = 10
     targetDir = '/star/u/yghuang/pwgdata/DataAnalysis/BES2/14p6/cumulant/240130/corr/default'
     outDir = f'{targetDir}/job'
     mergeDir = f'{targetDir}/merge'
