@@ -379,7 +379,7 @@ if mode in ['mer', 'merge']:
                 os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}X|g" {mergeDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}.mergeX.sh')
                 os.system(f'sed -i "s|OUTDIR|{outDir}|g" {mergeDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}.mergeX.sh')
                 os.system(f'sed -i "s|MERDIR|{mergeDir}|g" {mergeDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}.mergeX.sh')
-                os.system(f'sed -i "s|SHELLNAME|{Args.title}.y{item}.vz{vzIdx}.merge.sh|g" {mergeDir}/y{item}X/{Args.title}.vz{vzIdx}.merge.job')
+                os.system(f'sed -i "s|SHELLNAME|{Args.title}.y{item}.vz{vzIdx}.mergeX.sh|g" {mergeDir}/y{item}X/{Args.title}.vz{vzIdx}.merge.job')
                 os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {mergeDir}/y{item}X/{Args.title}.vz{vzIdx}.merge.job')
                 os.system(f'cd {mergeDir}/y{item}X && condor_submit {Args.title}.vz{vzIdx}.merge.job')
                 l.log(f' - Current y{item} - Vz {vzIdx} (X)')
