@@ -3,11 +3,15 @@ r'''
     Cumulant Calculation Manage System
     Author: Yige HUANG
 
-    Latest Revision v4.0.1 (31.1.2024) - Yige Huang
+    Latest Revision v4.0.3 (1.2.2024) - Yige Huang
 
     1. Suggested number of files per job: 30 -> 10
 
     2. Fix a minor bug in merge part
+
+    3. Fix some bugs in calculate part
+
+    4. Fix some bugs in collect part
     
     Revision: v4.0 (30.1.2024) - Yige Huang
 
@@ -495,7 +499,7 @@ if mode in ['run', 'calc']:
                 os.mkdir(f'{runDir}/y{item}X')
             if not os.path.exists(f'{runDir}/y{item}X/runCumulant'):
                 os.symlink(Args.calc_exec, f'{runDir}/y{item}X/runCumulant')
-            if not os.path.exists(f'{runDir}/y{item}X/cent_edgeX.txt'):
+            if not os.path.exists(f'{runDir}/y{item}X/cent_edge.txt'):
                 os.symlink(f'{os.getcwd()}/cent_edgeX.txt', f'{runDir}/y{item}X/cent_edge.txt')
             if not os.path.exists(f'{runDir}/y{item}X/Npart.txt'):
                 os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/y{item}X/Npart.txt')
@@ -543,13 +547,13 @@ if mode in ['run', 'calc']:
                 os.mkdir(f'{runDir}/pt{item}X')
             if not os.path.exists(f'{runDir}/pt{item}X/runCumulant'):
                 os.symlink(Args.calc_exec, f'{runDir}/pt{item}X/runCumulant')
-            if not os.path.exists(f'{runDir}/pt{item}X/cent_edgeX.txt'):
+            if not os.path.exists(f'{runDir}/pt{item}X/cent_edge.txt'):
                 os.symlink(f'{os.getcwd()}/cent_edgeX.txt', f'{runDir}/pt{item}X/cent_edge.txt')
             if not os.path.exists(f'{runDir}/pt{item}X/Npart.txt'):
                 os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/pt{item}X/Npart.txt')
             for vzIdx in range(CutArgs.vzBin):
-                if os.path.exists(f'{runDir}/pt{item}X/pt{item}.vz{vzIdx}X.root'):
-                    os.remove(f'{runDir}/{Args.title}.pt{item}X/pt{item}.vz{vzIdx}X.root')
+                if os.path.exists(f'{runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}X.root'):
+                    os.remove(f'{runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}X.root')
                 os.symlink(f'{mergeDir}/{Args.title}.pt{item}.vz{vzIdx}X.root', f'{runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}X.root')
                 os.system(f'cp calc.sh {runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}.calcX.sh')
                 os.system(f'cp calc.job {runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
