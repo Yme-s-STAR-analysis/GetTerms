@@ -544,7 +544,7 @@ if mode in ['run', 'calc']:
             if not os.path.exists(f'{runDir}/pt{item}X/runCumulant'):
                 os.symlink(Args.calc_exec, f'{runDir}/pt{item}X/runCumulant')
             if not os.path.exists(f'{runDir}/pt{item}X/cent_edgeX.txt'):
-                os.symlink(f'{os.getcwd()}/cent_edgeX.txt', f'{runDir}/pt{item}X/cent_edgeX.txt')
+                os.symlink(f'{os.getcwd()}/cent_edgeX.txt', f'{runDir}/pt{item}X/cent_edge.txt')
             if not os.path.exists(f'{runDir}/pt{item}X/Npart.txt'):
                 os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/pt{item}X/Npart.txt')
             for vzIdx in range(CutArgs.vzBin):
