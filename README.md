@@ -1,5 +1,11 @@
 # Quick Start
 
+Version: 4.1
+
+13.3.2024 - Yige Huang
+
+1. Merge will skip files that does not exist to avoid failing
+
 Version: 4.0
 
 30.1.2024 - Yige Huang
