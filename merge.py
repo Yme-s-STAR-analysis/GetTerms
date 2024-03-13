@@ -24,6 +24,9 @@ l.log(f'Now hadd 1 / {n} : {baseFile}')
 os.system(f'cp {baseFile} {mergeDir}/tmp.{taskName}')
 for idx, item in enumerate(lists):
     l.log(f'Now hadd {idx + 2} / {n} : {item}')
+    if not os.path.exists(item):
+        l.log(f'{item} does not exist, skip!')
+        continue
     os.system(f'hadd {mergeDir}/{taskName} {item} {mergeDir}/tmp.{taskName}')
     os.system(f'mv {mergeDir}/{taskName} {mergeDir}/tmp.{taskName}')
 os.system(f'mv {mergeDir}/tmp.{taskName} {mergeDir}/{taskName}')
