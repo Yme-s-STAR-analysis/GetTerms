@@ -1,5 +1,9 @@
 /*
 
+	Version: 4.2 (5.4.2024)
+
+	1. Using latest CentCorrTool with Indian method
+
 	Version: 4.0 (30.1.2024)
 
 	1. Support RefMult3X
@@ -132,12 +136,7 @@ int main(int argc, char** argv){
 	qc->readConfig(fin);
 
 	CentCorrTool* cent_def = new CentCorrTool();
-	cent_def->SetDoMatchPileUp(true);
-	cent_def->SetDoBetaPileUp(true);
-	cent_def->SetDoLumi(false);
-	cent_def->SetDoVz(true);
-	cent_def->SetDoLumiX(false);
-	cent_def->SetDoVzX(true);
+	cent_def->EnableIndianMethod(true);
 	cent_def->ReadParams();
 
 	// efficiency items here (for uncorrected case, just ignore them is okey)
@@ -150,7 +149,7 @@ int main(int argc, char** argv){
 
 	StFemtoEvent *event = new StFemtoEvent();
 	chain->SetBranchAddress("StFemtoEvent", &event);
-	int MaxMult = 900;
+	int MaxMult = 1000;
 
 	TFile* terms3 = new TFile(Form("%s.root", task_tag), "recreate");
 	Loader* lder_n = new Loader("Netp", terms3, MaxMult);
