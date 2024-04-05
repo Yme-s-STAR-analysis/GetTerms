@@ -30,41 +30,83 @@ CentCorrTool::CentCorrTool() {
     }
     doMatchPileUp = doBetaPileUp = doLumi = doLumiX = doVz = doVzX = true;
     doSplit = doSplitX = false;
+
+    // Indian method
+    Indian_PileUpCurve[0][0] = new TF1("IndianTofMultUpper", "[0]+[1]/pow(x, [2])", 0, 850);
+    Indian_PileUpCurve[0][1] = new TF1("IndianTofMultLower", "[0]+[1]/pow(x, [2])", 0, 850);
+    Indian_PileUpCurve[1][0] = new TF1("IndianTofMatchUpper", "[0]+[1]/pow(x, [2])", 0, 850);
+    Indian_PileUpCurve[1][1] = new TF1("IndianTofMatchLower", "[0]+[1]/pow(x, [2])", 0, 850);
+    Indian_PileUpCurve[2][0] = new TF1("IndianTofBetaUpper", "[0]+[1]/pow(x, [2])", 0, 850);
+    Indian_PileUpCurve[2][1] = new TF1("IndianTofBetaLower", "[0]+[1]/pow(x, [2])", 0, 850);
+    for (int i=0; i<100; i++) {
+        Indian_vzPars[i] = 0.0;
+        Indian_vzParsX[i] = 0.0;
+    }
+    for (int i=0; i<9; i++) {
+        Indian_centSplitEdge[i] = 0;
+        Indian_centSplitEdgeX[i] = 0;
+    }
+    IsIndian = false;
 }
 
 void CentCorrTool::ReadParams() {
     if (cent_conf::CentCorrToolPatch != PatchNumber) {
-        std::cout << "[WARNING] - ReadParams: The patch numbers of CentCorrTool and from parameter configuration do not match!" << std::endl;
-        std::cout << "[WARNING] - ReadParams: Patch number from configuation: " << cent_conf::CentCorrToolPatch << ", and from CentCorrTool: " << PatchNumber << std::endl;
-        std::cout << "[WARNING] - ReadParams: This may lead to some fatal results, especially when you are using RefMult3X." << std::endl;
+        std::cout << "[WARNING] - CentCorrTool: The patch numbers of CentCorrTool and from parameter configuration do not match!" << std::endl;
+        std::cout << "[WARNING] - CentCorrTool: Patch number from configuation: " << cent_conf::CentCorrToolPatch << ", and from CentCorrTool: " << PatchNumber << std::endl;
+        std::cout << "[WARNING] - CentCorrTool: This may lead to some fatal results, especially when you are using RefMult3X." << std::endl;
     }
-    nTrg = cent_conf::nTrg; 
-    std::cout << "[LOG] - ReadParams: The parameter list is named as [" << cent_conf::Name << "] version [" << cent_conf::Mode << "]." << std::endl;
-    std::cout << "[LOG] - ReadParams: Number of triggers: " << nTrg << ", list: ";
-    for (int i=0; i<nTrg; i++) {
-        std::cout << cent_conf::trgList[i] << "\t";
-    }
-    std::cout << std::endl;
+    if (IsIndian) { // apply Indian method
+        std::cout << "[LOG] - CentCorrTool: [Indian Mode] ON" << std::endl;
+        std::cout << "[LOG] - CentCorrTool: The parameter list is named as [" << cent_conf::Name << "] version [" << cent_conf::Mode << "]." << std::endl;
+        for (int i=0; i<3; i++) {
+            Indian_PileUpCurve[0][0]->SetParameter(i, cent_conf::Indian_tofMult_upper_pars[i]);
+            Indian_PileUpCurve[0][1]->SetParameter(i, cent_conf::Indian_tofMult_lower_pars[i]);
+            Indian_PileUpCurve[1][0]->SetParameter(i, cent_conf::Indian_tofMatch_upper_pars[i]);
+            Indian_PileUpCurve[1][1]->SetParameter(i, cent_conf::Indian_tofMatch_lower_pars[i]);
+            Indian_PileUpCurve[2][0]->SetParameter(i, cent_conf::Indian_tofBeta_upper_pars[i]);
+            Indian_PileUpCurve[2][1]->SetParameter(i, cent_conf::Indian_tofBeta_lower_pars[i]);
+        }
+        for (int i=0; i<100; i++) {
+            Indian_vzPars[i] = cent_conf::Indian_vz_pars[i];
+            Indian_vzParsX[i] = cent_conf::Indian_vz_parsX[i];
+        }
+        for (int i=0; i<9; i++) {
+            Indian_centSplitEdge[i] = cent_conf::Indian_cent_edge[i];
+            Indian_centSplitEdgeX[i] = cent_conf::Indian_cent_edgeX[i];
+        }
+        rd = new TRandom3();
 
-    for (int i=0; i<3; i++) {
-        SetPileUpNTofMatchUpperParam(cent_conf::match_upper_pars[i], i);
-        SetPileUpNTofMatchLowerParam(cent_conf::match_lower_pars[i], i);
-    }
-    SetPileUpNTofBetaUpperParam(cent_conf::beta_upper_pars);
-    SetPileUpNTofBetaLowerParam(cent_conf::beta_lower_pars);
 
-    for (int i=0; i<nTrg; i++) {
-        SetLumiParam(cent_conf::trgList[i], cent_conf::lumi_par[i][0], cent_conf::lumi_par[i][1]);
-        SetLumiParamX(cent_conf::trgList[i], cent_conf::lumi_parX[i][0], cent_conf::lumi_parX[i][1]);
-    }
+    } else {
+        std::cout << "[LOG] - CentCorrTool: [Indian Mode] OFF" << std::endl;
+        nTrg = cent_conf::nTrg; 
+        std::cout << "[LOG] - CentCorrTool: The parameter list is named as [" << cent_conf::Name << "] version [" << cent_conf::Mode << "]." << std::endl;
+        std::cout << "[LOG] - CentCorrTool: Number of triggers: " << nTrg << ", list: ";
+        for (int i=0; i<nTrg; i++) {
+            std::cout << cent_conf::trgList[i] << "\t";
+        }
+        std::cout << std::endl;
 
-    for (int i=0; i<nTrg; i++) {
-        SetVzParam(cent_conf::trgList[i], &cent_conf::vz_par[i][0]);
-        SetVzParamX(cent_conf::trgList[i], &cent_conf::vz_parX[i][0]);
-    }
+        for (int i=0; i<3; i++) {
+            SetPileUpNTofMatchUpperParam(cent_conf::match_upper_pars[i], i);
+            SetPileUpNTofMatchLowerParam(cent_conf::match_lower_pars[i], i);
+        }
+        SetPileUpNTofBetaUpperParam(cent_conf::beta_upper_pars);
+        SetPileUpNTofBetaLowerParam(cent_conf::beta_lower_pars);
 
-    SetCentEdge(cent_conf::cent_edge);
-    SetCentEdgeX(cent_conf::cent_edgeX);
+        for (int i=0; i<nTrg; i++) {
+            SetLumiParam(cent_conf::trgList[i], cent_conf::lumi_par[i][0], cent_conf::lumi_par[i][1]);
+            SetLumiParamX(cent_conf::trgList[i], cent_conf::lumi_parX[i][0], cent_conf::lumi_parX[i][1]);
+        }
+
+        for (int i=0; i<nTrg; i++) {
+            SetVzParam(cent_conf::trgList[i], &cent_conf::vz_par[i][0]);
+            SetVzParamX(cent_conf::trgList[i], &cent_conf::vz_parX[i][0]);
+        }
+
+        SetCentEdge(cent_conf::cent_edge);
+        SetCentEdgeX(cent_conf::cent_edgeX);
+    }
 }
 
 int CentCorrTool::ConvertTrg(int trg) {
@@ -118,24 +160,40 @@ int CentCorrTool::GetRefMult3Corr(int refmult, int ref3, int nTofMatch, int nTof
 }
 
 int CentCorrTool::GetCentrality9(int ref3, bool withX) {
-    if (withX) {
-        if (!doSplitX) {
-            std::cout << "[WARNING] - GetCentrality9: Centrality bin edge (RefMult3X) not set yet." << std::endl;
-            return -1;
-        }
-        for (int i=0; i<9; i++) {
-            if (ref3 > centSplitEdgeX[i]) {
-                return i;
+    if (IsIndian) {
+        if (withX) {
+            for (int i=0; i<9; i++) {
+                if (ref3 > Indian_centSplitEdgeX[i]) {
+                    return i;
+                }
+            }
+        } else {
+            for (int i=0; i<9; i++) {
+                if (ref3 > Indian_centSplitEdge[i]) {
+                    return i;
+                }
             }
         }
     } else {
-        if (!doSplit) {
-            std::cout << "[WARNING] - GetCentrality9: Centrality bin edge (RefMult3) not set yet." << std::endl;
-            return -1;
-        }
-        for (int i=0; i<9; i++) {
-            if (ref3 > centSplitEdge[i]) {
-                return i;
+        if (withX) {
+            if (!doSplitX) {
+                std::cout << "[WARNING] - CentCorrTool: Centrality bin edge (RefMult3X) not set yet." << std::endl;
+                return -1;
+            }
+            for (int i=0; i<9; i++) {
+                if (ref3 > centSplitEdgeX[i]) {
+                    return i;
+                }
+            }
+        } else {
+            if (!doSplit) {
+                std::cout << "[WARNING] - CentCorrTool: Centrality bin edge (RefMult3) not set yet." << std::endl;
+                return -1;
+            }
+            for (int i=0; i<9; i++) {
+                if (ref3 > centSplitEdge[i]) {
+                    return i;
+                }
             }
         }
     }
@@ -150,3 +208,29 @@ bool CentCorrTool::IsBetaPileUp(int refmult, int nTofBeta) {
     return nTofBetaUpperPoly3->Eval(nTofBeta) < refmult || nTofBetaLowerPoly3->Eval(nTofBeta) > refmult || nTofBeta <= 1;
 }
 
+bool CentCorrTool::IsIndianPileUp(int refMult, int tofMult, int tofMatch, int tofBeta) {
+    return Indian_PileUpCurve[0][0]->Eval(refMult) < tofMult ||
+    Indian_PileUpCurve[0][1]->Eval(refMult) > tofMult ||
+    Indian_PileUpCurve[1][0]->Eval(refMult) < tofMatch ||
+    Indian_PileUpCurve[1][1]->Eval(refMult) > tofMatch ||
+    Indian_PileUpCurve[2][0]->Eval(refMult) < tofBeta ||
+    Indian_PileUpCurve[2][1]->Eval(refMult) > tofBeta;
+}
+
+int CentCorrTool::IndianVzCorrection(int ref3, double vz, bool withX) {
+    double factor = 1;
+    int vzbin = (int)(vz + 50.0);
+    if (vzbin < 0 || vzbin > 99) { return -1; }
+    if (withX) {
+        factor = Indian_vzParsX[vzbin];
+    } else {
+        factor = Indian_vzPars[vzbin];
+    }
+    return (int)((ref3 + rd->Rndm()) * factor);
+}
+
+int CentCorrTool::GetIndianRefMult3Corr(int refMult, int ref3, int tofMult, int tofMatch, int tofBeta, double vz, bool withX) {
+    if (IsIndianPileUp(refMult, tofMult, tofMatch, tofBeta)) { return -1; }
+    ref3 = IndianVzCorrection(ref3, vz, withX);
+    return ref3;
+}

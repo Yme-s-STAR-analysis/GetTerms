@@ -3,20 +3,21 @@
 
 namespace cent_conf {
 
-    static const int CentCorrToolPatch = 5;
+    static const int CentCorrToolPatch = 6;
     
     // The name and mode are used to check in the LOG file if the wrong parameter file is used.
-    static const char* Name = "14p6";
+    static const char* Name = "DATASET";
     static const char* Mode = 
         // "TEST";
         // "PU";
         // "LUMI";
         // "VZ";
-        "COMP";
+        // "COMP";
+        "INDIAN";
 
     static const int nTrg = 1;
     static int trgList[nTrg] = {
-        650000,
+        123456,
     };
 
     // Pile-up parameters
@@ -39,10 +40,10 @@ namespace cent_conf {
     
     // Customized nTofBeta cut parameters, no Vz dependence
     static double beta_upper_pars[4] = {
-        31.515, 0.962225, 0.00350611, -8.76116e-06
+        0, 0, 0, 0
     };
     static double beta_lower_pars[4] = {
-        -17.7854, 0.632882, 0.000556707, 2.93963e-08
+        0, 0, 0, 0
     };
 
     // Luminosity arguments
@@ -55,10 +56,10 @@ namespace cent_conf {
 
     // vz arguments
     static double vz_par[nTrg][7] = { // please follow the order of trigger id
-        {531.56	,-0.0259305	,0.00209309	,5.81154e-06	,-1.75629e-06	,-1.31774e-09	,2.44224e-10}
+        {0, 0, 0, 0, 0, 0, 0}
     };
     static double vz_parX[nTrg][7] = { // please follow the order of trigger id
-        {715.902,-0.0282652	,-0.00746522,4.36012e-07	,-1.47285e-06	,-3.51241e-10	,2.59116e-10}
+        {0, 0, 0, 0, 0, 0, 0}
     };
       
     // centrality split with RefMult3
@@ -67,8 +68,43 @@ namespace cent_conf {
     };
     // with RefMult3X
     static int cent_edgeX[9] = { // here fill in the centrality bin edge 
-        596, 498, 347, 236, 154, 95, 55, 29, 14
+        492, 413, 288, 196, 128, 79, 46, 24, 12
     };
+
+    // ======================== Here below are parameters using Indian method
+    // Pile-up parameters
+    // fitting function: [0] + [1] / pow(x, [2])
+    // Note: par [2] is close to -1, whcih means this is indeed approximate a linear function
+    static constexpr double Indian_tofMult_upper_pars[3] = {
+        0, 0, 0
+    };
+    static constexpr double Indian_tofMult_lower_pars[3] = {
+        0, 0, 0
+    };
+    static constexpr double Indian_tofMatch_upper_pars[3] = {
+        0, 0, 0
+    };
+    static constexpr double Indian_tofMatch_lower_pars[3] = {
+        0, 0, 0
+    };
+    static constexpr double Indian_tofBeta_upper_pars[3] = {
+        0, 0, 0
+    };
+    static constexpr double Indian_tofBeta_lower_pars[3] = {
+        0, 0, 0
+    };
+    // No luminosity correction in Indian method
+    // Vz correction: no trigger bias, point-wise correction
+    static constexpr double Indian_vz_pars[100] = { 0.0 };
+    static constexpr double Indian_vz_parsX[100] = { 0.0 };
+    // Centrality bin edge
+    static constexpr int Indian_cent_edge[9] = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+    static constexpr int Indian_cent_edgeX[9] = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+
 
 } // namespace cent_conf
 
