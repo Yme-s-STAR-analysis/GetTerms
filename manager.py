@@ -3,7 +3,11 @@ r'''
     Cumulant Calculation Manage System
     Author: Yige HUANG
 
-    Latest Revision v4.0.3 (1.2.2024) - Yige Huang
+    Latest Revision v4.1 (5.4.2024) - Yige Huang
+
+    1. Centrality files are now using Indian method, it's actually not significantly changing this program but need some updates on Core.cxx and this module
+    
+    Revision v4.0.3 (1.2.2024) - Yige Huang
 
     1. Suggested number of files per job: 30 -> 10
 

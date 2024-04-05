@@ -2,19 +2,20 @@
 #define __CENT_TOOL_HEADER__
 
 /*
-    Version: 5.0
+    Version: 6.0
     Author: yghuang
-    Date: 23.01.2024
+    Date: 04.04.2024
 */
 
 #include <iostream>
 #include "TF1.h"
+#include "TRandom3.h"
 
 class CentCorrTool {
 
     private:
 
-        static const int PatchNumber = 5;
+        static const int PatchNumber = 6;
 
         static const int MAX_TRG = 10; // the maximum of triggers
         int nTrg; // actual number of triggers, will be read from config file
@@ -55,6 +56,15 @@ class CentCorrTool {
         double centSplitEdgeX[9];
         bool doSplitX;
 
+        // Indian method
+        TF1* Indian_PileUpCurve[3][2]; // [tofMult, tofMatch, tofBeta][upper lower]
+        double Indian_vzPars[100];
+        double Indian_vzParsX[100];
+        double Indian_centSplitEdge[9];
+        double Indian_centSplitEdgeX[9];
+        TRandom3* rd;
+        bool IsIndian;
+
     public:
         CentCorrTool();
         ~CentCorrTool(){}
@@ -65,17 +75,17 @@ class CentCorrTool {
         void SetDoMatchPileUp(bool do_) {
             doMatchPileUp = do_;
             if (do_) {
-                std::cout << "[LOG] - nTofMatch pile-up removal: " << "ON" <<std::endl;
+                std::cout << "[LOG] - CentCorrTool: nTofMatch pile-up removal: " << "ON" <<std::endl;
             } else {
-                std::cout << "[LOG] - nTofMatch pile-up removal: " << "OFF" <<std::endl;
+                std::cout << "[LOG] - CentCorrTool: nTofMatch pile-up removal: " << "OFF" <<std::endl;
             }
         }
         void SetDoBetaPileUp(bool do_) {
             doBetaPileUp = do_;
             if (do_) {
-                std::cout << "[LOG] - nTofBeta pile-up removal: " << "ON" <<std::endl;
+                std::cout << "[LOG] - CentCorrTool: nTofBeta pile-up removal: " << "ON" <<std::endl;
             } else {
-                std::cout << "[LOG] - nTofBeta pile-up removal: " << "OFF" <<std::endl;
+                std::cout << "[LOG] - CentCorrTool: nTofBeta pile-up removal: " << "OFF" <<std::endl;
             }
         }
         void SetDoPileUp(bool do_) {
@@ -85,33 +95,33 @@ class CentCorrTool {
         void SetDoLumi(bool do_) {
             doLumi = do_;
             if (do_) {
-                std::cout << "[LOG] - luminosity correction (RefMult3): " << "ON" <<std::endl;
+                std::cout << "[LOG] - CentCorrTool: Luminosity correction (RefMult3): " << "ON" <<std::endl;
             } else {
-                std::cout << "[LOG] - luminosity correction (RefMult3): " << "OFF" <<std::endl;
+                std::cout << "[LOG] - CentCorrTool: Luminosity correction (RefMult3): " << "OFF" <<std::endl;
             }
         }
         void SetDoLumiX(bool do_) {
             doLumiX = do_;
             if (do_) {
-                std::cout << "[LOG] - luminosity correction (RefMult3X): " << "ON" <<std::endl;
+                std::cout << "[LOG] - CentCorrTool: Luminosity correction (RefMult3X): " << "ON" <<std::endl;
             } else {
-                std::cout << "[LOG] - luminosity correction (RefMult3X): " << "OFF" <<std::endl;
+                std::cout << "[LOG] - CentCorrTool: Luminosity correction (RefMult3X): " << "OFF" <<std::endl;
             }
         }
         void SetDoVz(bool do_) {
             doVz = do_;
             if (do_) {
-                std::cout << "[LOG] - Vz correction (RefMult3): " << "ON" <<std::endl;
+                std::cout << "[LOG] - CentCorrTool: Vz correction (RefMult3): " << "ON" <<std::endl;
             } else {
-                std::cout << "[LOG] - Vz correction (RefMult3): " << "OFF" <<std::endl;
+                std::cout << "[LOG] - CentCorrTool: Vz correction (RefMult3): " << "OFF" <<std::endl;
             }
         }
         void SetDoVzX(bool do_) {
             doVzX = do_;
             if (do_) {
-                std::cout << "[LOG] - Vz correction (RefMult3X): " << "ON" <<std::endl;
+                std::cout << "[LOG] - CentCorrTool: Vz correction (RefMult3X): " << "ON" <<std::endl;
             } else {
-                std::cout << "[LOG] - Vz correction (RefMult3X): " << "OFF" <<std::endl;
+                std::cout << "[LOG] - CentCorrTool: Vz correction (RefMult3X): " << "OFF" <<std::endl;
             }
         }
         
@@ -286,7 +296,7 @@ class CentCorrTool {
             centSplitEdge[7] = e7;
             centSplitEdge[8] = e8;
             doSplit = true;
-            std::cout << "[LOG] - Centrality bin edge (RefMult3) specified.\n";
+            std::cout << "[LOG] - CentCorrTool: Centrality bin edge (RefMult3) specified.\n";
         }
 
         void SetCentEdge(int* arr) {
@@ -294,7 +304,7 @@ class CentCorrTool {
                 centSplitEdge[i] = *(arr+i);
             }
             doSplit = true;
-            std::cout << "[LOG] - Centrality bin edge (RefMult3) specified.\n";
+            std::cout << "[LOG] - CentCorrTool: Centrality bin edge (RefMult3) specified.\n";
         }
 
         // -------------------------------------------------------------------
@@ -310,17 +320,23 @@ class CentCorrTool {
             centSplitEdgeX[7] = e7;
             centSplitEdgeX[8] = e8;
             doSplitX = true;
-            std::cout << "[LOG] - Centrality bin edge (RefMult3X) specified.\n";
+            std::cout << "[LOG] - CentCorrTool: Centrality bin edge (RefMult3X) specified.\n";
         }
         void SetCentEdgeX(int* arr) {
             for (int i=0; i<9; i++) {
                 centSplitEdgeX[i] = *(arr+i);
             }
             doSplitX = true;
-            std::cout << "[LOG] - Centrality bin edge (RefMult3X) specified.\n";
+            std::cout << "[LOG] - CentCorrTool: Centrality bin edge (RefMult3X) specified.\n";
         }
 
         int GetCentrality9(int ref3, bool withX=false);
+
+        // Indian method
+        void EnableIndianMethod(bool enable=false) { IsIndian = enable; }
+        bool IsIndianPileUp(int refMult, int tofMult, int tofMatch, int tofBeta);
+        int IndianVzCorrection(int ref3, double vz, bool withX=false);
+        int GetIndianRefMult3Corr(int refMult, int ref3, int tofMult, int tofMatch, int tofBeta, double vz, bool withX=false);
 
 };
 
