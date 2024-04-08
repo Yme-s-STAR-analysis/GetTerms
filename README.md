@@ -1,5 +1,13 @@
 # Quick Start
 
+Version: 4.2
+
+08.04.2024 - Yige Huang
+
+1. new efficiency maker class
+
+2. new centrality tool
+
 Version: 4.1
 
 13.3.2024 - Yige Huang
