@@ -230,7 +230,7 @@ int main(int argc, char** argv){
 			double tpc_effX = effMaker->GetTpcEff(positive, pt, YP, centBinX, vz);
 			double tof_effX = effMaker->GetTofEff(positive, pt, YP, centBinX, vz);
 
-			double pid_eff = effMaker->GetPidEff(positive, pcm, vz);
+			double pid_eff = effMaker->GetPidEff(positive, pt, YP);
 
 			if (needTOF) {
 				eff = tpc_eff * tof_eff * pid_eff;
