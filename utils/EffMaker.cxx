@@ -60,16 +60,26 @@ void EffMaker::ReadInEffFile(const char* tpc, const char* tof, const char* pid, 
                 }
             }
         }
-        if (!pidOff) {
-            tf_pid->GetObject(
-                Form("PidEff_%s_vz%d_Pro", nSigTag, iVz),
-                pid_pro[iVz]
-            );
-            tf_pid->GetObject(
-                Form("PidEff_%s_vz%d_Pbar", nSigTag, iVz),
-                pid_pbar[iVz]
-            );
-        }
+        // if (!pidOff) {
+        //     tf_pid->GetObject(
+        //         Form("PidEff_%s_vz%d_Pro", nSigTag, iVz),
+        //         pid_pro[iVz]
+        //     );
+        //     tf_pid->GetObject(
+        //         Form("PidEff_%s_vz%d_Pbar", nSigTag, iVz),
+        //         pid_pbar[iVz]
+        //     );
+        // }
+    }
+    if (!pidOff) {
+        tf_pid->GetObject(
+            Form("PidEff_%s_Pro", nSigTag),
+            pid_pro
+        );
+        tf_pid->GetObject(
+            Form("PidEff_%s_Pbar", nSigTag),
+            pid_pbar
+        );
     }
     return;
 }
@@ -108,18 +118,32 @@ double EffMaker::GetTofEff(bool positive, double pt, double y, int cent, double 
     return eff;
 }
 
-double EffMaker::GetPidEff(bool positive, double p, double vz_) {
+// double EffMaker::GetPidEff(bool positive, double p, double vz_) {
+//     if (pidOff) { return 1.0; }
+//     p = p > 3.4 ? 3.4 : p;
+//     int vz = VzSplit(vz_);
+//     if (vz < 0) { return -1; }
+//     if (positive) {
+//         th1 = pid_pro[vz];
+//     } else {
+//         th1 = pid_pbar[vz];
+//     }
+//     int x = th1->FindBin(p);
+//     double eff = th1->GetBinContent(x);
+//     if (eff < 0 || eff > 1) { return -1; }
+//     return eff;
+// }
+
+double EffMaker::GetPidEff(bool positive, double pt, double y) {
     if (pidOff) { return 1.0; }
-    p = p > 3.4 ? 3.4 : p;
-    int vz = VzSplit(vz_);
-    if (vz < 0) { return -1; }
     if (positive) {
-        th1 = pid_pro[vz];
+        th2 = pid_pro;
     } else {
-        th1 = pid_pbar[vz];
+        th2 = pid_pbar;
     }
-    int x = th1->FindBin(p);
-    double eff = th1->GetBinContent(x);
+    int ybin = th2->GetXaxis()->FindBin(y);
+    int ptbin = th2->GetYaxis()->FindBin(pt);
+    double eff = th2->GetBinContent(ybin, ptbin);
     if (eff < 0 || eff > 1) { return -1; }
     return eff;
 }
