@@ -138,15 +138,15 @@ bool QualityController::isBadEvent(double vz, double vr, double _placeholderA, d
 }
 
 bool QualityController::isBadTrack(double pt, double y, int nHitsFit, int nHitsDedx, double nHitsRatio, double nSigma, double dca, bool needTOF, double mass2) {
-    if (pt < ptMin || pt > ptMax) { return true; }
+    if (pt <= ptMin || pt >= ptMax) { return true; }
     if (rapidityMode == 1) { y = fabs(y); } // v1.3 new feature, only if the mode is 1, we use absolute value of rapidity
-    if (y < yMin || y > yMax) { return true; }
+    if (y <= yMin || y >= yMax) { return true; }
     if (nHitsFit <= nHitsFitCut) { return true; }
     if (nHitsDedx <= nHitsDedxCut) { return true; }
     if (nHitsRatio < nHitsRatioCut) { return true; }
-    if (fabs(nSigma) > nSigmaCut) { return true; }
-    if (dca > dcaCut) { return true; }
-    if (needTOF && (mass2 < mass2Min || mass2 > mass2Max)) { 
+    if (fabs(nSigma) >= nSigmaCut) { return true; }
+    if (dca >= dcaCut) { return true; }
+    if (needTOF && (mass2 <= mass2Min || mass2 >= mass2Max)) { 
         return true; 
     }
     return false;
