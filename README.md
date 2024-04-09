@@ -1,5 +1,23 @@
 # Quick Start
 
+Version: 4.2.2
+
+09.04.2024 - Yige Huang
+
+1. Quality controller will reject tracks with quantity equal to the limit:
+
+    The EffMaker is using FindBin method to get PID effiicency, and for some particular tracks, the pt or y is exactly at the bin edge (like pt=2.0), which can pass QualityController's check, but fail to get a valid PID efficiency (=0).
+
+    And efficiency equaling to 0 results in infinite cumulant value.
+
+    Doing a cut in EffMaker would give an implicit hard cut and may be forgotten in the future and that's why I make this change in quality controller.
+
+Version: 4.2.1
+
+08.04.2024 - Yige Huang
+
+1. Fix a bug: PID efficiency's interface in Core.cxx
+
 Version: 4.2
 
 08.04.2024 - Yige Huang
