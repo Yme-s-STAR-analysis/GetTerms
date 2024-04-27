@@ -63,10 +63,7 @@ class QualityController {
         void readConfig(std::ifstream* ifConfig);
         void Print();
         bool isBadEvent(double vz); // vr is removed
-        bool isBadEvent(double vz, double vr);
-        bool isBadEvent(double vz, double _placeholderA, double _placeholderB);
         bool isBadTrack(double pt, double y, int nHitsFit, double nSigma, double dca, bool needTOF, double mass2); // nHitsDedx and nHitsRatio are removed
-        bool isBadTrack(double pt, double y, int nHitsFit, int nHitsDedx, double nHitsRatio, double nSigma, double dca, bool needTOF, double mass2);
 };
 
 #endif

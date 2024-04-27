@@ -5,6 +5,7 @@
 QualityController::QualityController() {
     vzMin = -50;
     vzMax = 50;
+    // v4.3 vr cut is already applied
     // vrCut = 2;
 
     // v2.0 these DCAxy/z cut are no more useful
@@ -18,6 +19,7 @@ QualityController::QualityController() {
     yMin = 0.0;
     yMax = 0.5;
     nHitsFitCut = 20;
+    // v4.3 nHitsDedx and nHitsRatio cut are already applied
     // nHitsDedxCut = 5;
     // nHitsRatioCut = 0.52;
     nSigmaCut = 2;
@@ -47,15 +49,6 @@ void QualityController::readConfig(std::ifstream* ifConfig) {
             *mIfConfig >> val1 >> val2;
             vzMin = std::stod(val1);
             vzMax = std::stod(val2);
-        } else if (types == "VR") {
-            *mIfConfig >> val1;
-            // vrCut = std::stod(val1);
-        } else if (types == "DCAZ") {
-            *mIfConfig >> val1;
-            // nSigDCAzCut = std::stod(val1);
-        } else if (types == "DCAXY") {
-            *mIfConfig >> val1;
-            // nSigsDCAxyCut = std::stod(val1);
         } else if (types == "PT") {
             *mIfConfig >> val1 >> val2;
             ptMin = std::stod(val1);
@@ -67,12 +60,6 @@ void QualityController::readConfig(std::ifstream* ifConfig) {
         } else if (types == "NHITSFIT") {
             *mIfConfig >> val1;
             nHitsFitCut = std::stod(val1);
-        } else if (types == "NHITSDEDX") {
-            *mIfConfig >> val1;
-            // nHitsDedxCut = std::stod(val1);
-        } else if (types == "NHITSRATIO") {
-            *mIfConfig >> val1;
-            // nHitsRatioCut = std::stod(val1);
         } else if (types == "NSIG") {
             *mIfConfig >> val1;
             nSigmaCut = std::stod(val1);
@@ -107,9 +94,6 @@ void QualityController::Print() {
 
     std::cout << "=== Event Wise Cuts ===\n";
     std::cout << "= Vz cut: " << vzMin << " - " << vzMax << std::endl;
-    // std::cout << "= Vr cut: " << vrCut << std::endl;
-    // std::cout << "= Mean nSigma DCAz cut: " << nSigDCAzCut << std::endl;
-    // std::cout << "= Mean signed DCAxy cut: " << nSigsDCAxyCut << std::endl;
     std::cout << "= Track Wise Cuts ===\n";
     std::cout << "= pt range: " << ptMin << " - " << ptMax << std::endl;
     if (rapidityMode == 1) {
@@ -118,8 +102,6 @@ void QualityController::Print() {
         std::cout << "= y (proton) range: " << yMin << " - " << yMax << std::endl;
     }
     std::cout << "= nHitsFit cut: " << nHitsFitCut << std::endl;
-    // std::cout << "= nHitsDedx cut: " << nHitsDedxCut << std::endl;
-    // std::cout << "= nHitsRatio cut: " << nHitsRatioCut << std::endl;
     std::cout << "= nSigma cut: " << nSigmaCut << std::endl;
     std::cout << "= dca cut: " << dcaCut << std::endl;
     std::cout << "= m2 range: " << mass2Min << " - " << mass2Max << std::endl;
@@ -127,20 +109,6 @@ void QualityController::Print() {
 
 bool QualityController::isBadEvent(double vz) {
     return (vz < vzMin || vz > vzMax);
-}
-
-bool QualityController::isBadEvent(double vz, double vr) {
-    // if (vz < vzMin || vz > vzMax) { return true; }
-    // if (vr > vrCut) { return true; }
-    // return false;
-    return isBadEvent(vz);
-}
-
-// v2.0 update: DCAxy/z cut are applied when generate tree, the interfaces are kept
-// bool QualityController::isBadEvent(double vz, double vr, double nSigDCAzN, double nSigsDCAxyN) {
-bool QualityController::isBadEvent(double vz, double vr, double _placeholderA, double _placeholderB) {
-    // return isBadEvent(vz, vr);
-    return isBadEvent(vz);
 }
 
 bool QualityController::isBadTrack(double pt, double y, int nHitsFit, double nSigma, double dca, bool needTOF, double mass2) {
@@ -154,20 +122,4 @@ bool QualityController::isBadTrack(double pt, double y, int nHitsFit, double nSi
         return true; 
     }
     return false;
-}
-
-bool QualityController::isBadTrack(double pt, double y, int nHitsFit, int nHitsDedx, double nHitsRatio, double nSigma, double dca, bool needTOF, double mass2) {
-    // if (pt <= ptMin || pt >= ptMax) { return true; }
-    // if (rapidityMode == 1) { y = fabs(y); } // v1.3 new feature, only if the mode is 1, we use absolute value of rapidity
-    // if (y <= yMin || y >= yMax) { return true; }
-    // if (nHitsFit <= nHitsFitCut) { return true; }
-    // if (nHitsDedx <= nHitsDedxCut) { return true; }
-    // if (nHitsRatio < nHitsRatioCut) { return true; }
-    // if (fabs(nSigma) >= nSigmaCut) { return true; }
-    // if (dca >= dcaCut) { return true; }
-    // if (needTOF && (mass2 <= mass2Min || mass2 >= mass2Max)) { 
-    //     return true; 
-    // }
-    // return false;
-    return isBadTrack(pt, y, nHitsFit, nSigma, dca, needTOF, mass2);
 }
