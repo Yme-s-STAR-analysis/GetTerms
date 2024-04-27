@@ -1,5 +1,9 @@
 /*
 
+	Version: 4.3 (27.4.2024)
+
+	1. Some useless quantites are removed, and interfaces are changed accordingly
+
 	Version: 4.2 (5.4.2024)
 
 	1. Using latest CentCorrTool with Indian method
@@ -73,17 +77,17 @@
 #include "utils/StFemtoTrack.h"
 #include "utils/StFemtoEvent.h"
 #include "utils/QualityController.h"
-#include "utils/badRunChecker.h"
 #include "utils/Loader.h"
 #include "utils/CentCorrTool.h"
 #include "utils/EffMaker.h"
 
 int main(int argc, char** argv){
 	/*
+		==  v4.3 eTof flag is now canceled
 		==  v3.0 new argument: efficiency factor (pabr)
 		==  v2.4 new argument: eTOF
 		==  v2.3 new argument: task tag
-		Arguments: 8
+		Arguments: 7
 		[1]:tpc eff path:
 		[2]:tof eff path:
 		[3]:pid eff path:
@@ -92,7 +96,7 @@ int main(int argc, char** argv){
 		[5]:eff factor (pro)
 		[6]:eff factor (pbar)
 		[7]:task tag: like trad.y5
-		[8]:eTof: 1 or 0, for use eTOF mass2 or not
+		// :eTof: 1 or 0, for use eTOF mass2 or not -> CANCELED
 	*/
 
 	TChain *chain = new TChain("fDst");
@@ -119,16 +123,17 @@ int main(int argc, char** argv){
 	const char* task_tag = argv[7];
 	std::cout << "[LOG] - From Core: The tag of this task would be: " << task_tag << ".\n";
 
+	// v4.3 canceled
 	// v2.4 eTOF mass2
-	const char* eTofUseInt = argv[8];
-	bool eTofUse;
-	if (atoi(eTofUseInt) == 0) {
-		std::cout << "[LOG] - From Core: eTOF mass square will NOT be used in the analysis!\n";
-		eTofUse = false;
-	} else {
-		std::cout << "[LOG] - From Core: eTOF mass square WILL be used in the analysis!\n";
-		eTofUse = true;
-	}
+	// const char* eTofUseInt = argv[8];
+	// bool eTofUse;
+	// if (atoi(eTofUseInt) == 0) {
+	// 	std::cout << "[LOG] - From Core: eTOF mass square will NOT be used in the analysis!\n";
+	// 	eTofUse = false;
+	// } else {
+	// 	std::cout << "[LOG] - From Core: eTOF mass square WILL be used in the analysis!\n";
+	// 	eTofUse = true;
+	// }
 	
 	std::ifstream* fin = new std::ifstream();
 	fin->open(Form("%s.getTerms.cfg", argv[7]));
@@ -161,16 +166,18 @@ int main(int argc, char** argv){
 	Loader* lder_pX = new Loader("Pro", terms3X, MaxMult);
 	Loader* lder_aX = new Loader("Pbar", terms3X, MaxMult);
 
+	int progress = 0;	
   	for (int iEntry = 0; iEntry < nentries; iEntry++){
-		if (iEntry != 0 && iEntry % 100000 == 0){
-			std::cout << "[LOG]: - From core: " << iEntry << " events finshed.\n";
+		// if (iEntry != 0 && iEntry % 100000 == 0){
+		if (iEntry * 100.0 / progress > nentries) {
+			std::cout << "[LOG]: Progress: " << iEntry << " / " << nentries << " events finished!\n";
+			progress += 5; // show progress per 5% events done
 		}
 
 		chain->GetEntry(iEntry);
 
 		// Make Event Cuts
 		double vz = event->GetVz();
-		double vr = event->GetVr();
 		double refMult3 = event->GetRefMult3();
 		double refMult3X = event->GetRefMult3X();
 		int centBin = cent_def->GetCentrality9(refMult3);
@@ -178,12 +185,7 @@ int main(int argc, char** argv){
 		if (refMult3 > MaxMult || refMult3X > MaxMult){ continue; }
 		if (centBin < 0 || centBinX < 0){ continue; }
 
-		if (qc->isBadEvent(vz, vr)) { continue; }
-
-		// Int_t runId = event->GetRunId(); // uncomment this block if need bad run checker
-		// if (cker.isBadRun(runId)){ 
-		//   continue;
-		// }
+		if (qc->isBadEvent(vz)) { continue; }
 
 		// track loop
         Int_t np = 0;
@@ -198,13 +200,13 @@ int main(int argc, char** argv){
 			double pcm = trk.GetP();
 			double YP = trk.GetY();
 			short nHitsFit = trk.GetNHitsFit();
-			short nHitsDedx = trk.GetNHitsDedx();
 			double dca = trk.GetDca();
 			double nSig = trk.GetNSigmaProton();
 			double mass2 = trk.GetMass2();
 			double fYP = fabs(YP);
-			Float_t isETofMass2 = trk.IsETofMass2(); // yes, it's a boolean but I store it using float
-			if (!eTofUse && isETofMass2 == 1.0) { mass2 = -999; }
+			// eTOF information is not stored in StFemtoDst now
+			// Float_t isETofMass2 = trk.IsETofMass2(); // yes, it's a boolean but I store it using float
+			// if (!eTofUse && isETofMass2 == 1.0) { mass2 = -999; }
 			
 			// Here is the PID selection: use TOF or not
 			bool needTOF = false;
@@ -212,7 +214,7 @@ int main(int argc, char** argv){
 			if (fYP > 0.6 && pt > 0.7) { needTOF = true; }
 
 			// Make track Cut
-			if (qc->isBadTrack(pt, YP, nHitsFit, nHitsDedx, 1.0, nSig, dca, needTOF, mass2)) {
+			if (qc->isBadTrack(pt, YP, nHitsFit, nSig, dca, needTOF, mass2)) {
 				continue;
 			} // nHitsRatio quantity is already cut when generating the tree
 
