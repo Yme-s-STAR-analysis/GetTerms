@@ -36,7 +36,7 @@ class QualityController {
         // event quantities
         double vzMin;
         double vzMax;
-        double vrCut;
+        // double vrCut;
         // double nSigDCAzCut;
         // double nSigsDCAxyCut;
 
@@ -47,8 +47,8 @@ class QualityController {
         double yMin;
         double yMax;
         double nHitsFitCut;
-        double nHitsDedxCut;
-        double nHitsRatioCut;
+        // double nHitsDedxCut;
+        // double nHitsRatioCut;
         double nSigmaCut;
         double dcaCut;
         double mass2Min;
@@ -62,8 +62,10 @@ class QualityController {
 
         void readConfig(std::ifstream* ifConfig);
         void Print();
+        bool isBadEvent(double vz); // vr is removed
         bool isBadEvent(double vz, double vr);
-        bool isBadEvent(double vz, double vr, double _placeholderA, double _placeholderB);
+        bool isBadEvent(double vz, double _placeholderA, double _placeholderB);
+        bool isBadTrack(double pt, double y, int nHitsFit, double nSigma, double dca, bool needTOF, double mass2); // nHitsDedx and nHitsRatio are removed
         bool isBadTrack(double pt, double y, int nHitsFit, int nHitsDedx, double nHitsRatio, double nSigma, double dca, bool needTOF, double mass2);
 };
 
