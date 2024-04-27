@@ -3,7 +3,13 @@ r'''
     Cumulant Calculation Manage System
     Author: Yige HUANG
 
-    Latest Revision v4.1 (5.4.2024) - Yige Huang
+    Latest Revision v4.3 (27.4.2024) - Yige Huang
+
+    1. Some quantities are removed, so they won't be written into cfg file
+
+    2. The resubmit mode is removed from manager system
+    
+    Revision v4.1 (5.4.2024) - Yige Huang
 
     1. Centrality files are now using Indian method, it's actually not significantly changing this program but need some updates on Core.cxx and this module
     
@@ -100,11 +106,11 @@ import os
 from conf import Args, CutArgs
 from yLog import yLog
 
-__version__ = '4.0'
-__updatedTime__ = '30.1.2024'
+__version__ = '4.3'
+__updatedTime__ = '27.04.2024'
 
 mode = sys.argv[1]
-assert(mode in ['sub', 'submit', 'mer', 'merge', 'run', 'calc', 'col', 'collect', 'clean', 'resubmit', 'repo', 'report'])
+assert(mode in ['sub', 'submit', 'mer', 'merge', 'run', 'calc', 'col', 'collect', 'clean', 'repo', 'report'])
 
 if mode not in ['clean', 'repo', 'report']:
     # verifying rapidity scan validation
@@ -165,7 +171,6 @@ if (mode in ['sub', 'submit']):
     l.log(f'{Args.nSigmaTag=}')
     l.log(f'{Args.eff_fac_pro=}')
     l.log(f'{Args.eff_fac_pbar=}')
-    l.log(f'{Args.use_etof=}')
     l.log(f'{nFiles} files in total, {nJobs} regular jobs with {nFilesPerJob} files to handle.')
     if bonus:
         l.log(f'Bonus job will manage {bonus} jobs.')
@@ -234,8 +239,8 @@ if (mode in ['sub', 'submit']):
                             vzMinTmp = -30
                             vzMaxTmp = 30
                         f.write(f'VARLIST\n')
-                        f.write(f'VZ\t{vzMinTmp}\t{vzMaxTmp}\nVR\t{CutArgs.vr}\nDCAZ\t{CutArgs.DCAz}\nDCAXY\t{CutArgs.DCAxy}\n')
-                        f.write(f'PT\t{CutArgs.ptMin}\t{CutArgs.ptMax}\nYP\t{ymin}\t{ymax}\nNHITSFIT\t{CutArgs.nHitsFit}\nNHITSDEDX\t{CutArgs.nHitsDedx}\nNHITSRATIO\t{CutArgs.nHitsRatio}\n')
+                        f.write(f'VZ\t{vzMinTmp}\t{vzMaxTmp}\n')
+                        f.write(f'PT\t{CutArgs.ptMin}\t{CutArgs.ptMax}\nYP\t{ymin}\t{ymax}\nNHITSFIT\t{CutArgs.nHitsFit}\n')
                         f.write(f'NSIG\t{CutArgs.nSig}\nDCA\t{CutArgs.dca}\nMASS2\t{CutArgs.m2Min}\t{CutArgs.m2Max}\nRMODE\t{ymode}\n')
                         f.write(f'END')
 
@@ -244,8 +249,8 @@ if (mode in ['sub', 'submit']):
                 for item, ptmax in zip(CutArgs.ptTags, CutArgs.ptMaxs):
                     with open(f'{Args.title}.pt{item}.vz{vzIdx}.getTerms.cfg', 'w') as f:
                         f.write(f'VARLIST\n')
-                        f.write(f'VZ\t{vzMin}\t{vzMax}\nVR\t{CutArgs.vr}\nDCAZ\t{CutArgs.DCAz}\nDCAXY\t{CutArgs.DCAxy}\n')
-                        f.write(f'PT\t{CutArgs.ptMin}\t{ptmax}\nYP\t{CutArgs.yMin}\t{CutArgs.yMax}\nNHITSFIT\t{CutArgs.nHitsFit}\nNHITSDEDX\t{CutArgs.nHitsDedx}\nNHITSRATIO\t{CutArgs.nHitsRatio}\n')
+                        f.write(f'VZ\t{vzMin}\t{vzMax}\n')
+                        f.write(f'PT\t{CutArgs.ptMin}\t{ptmax}\nYP\t{CutArgs.yMin}\t{CutArgs.yMax}\nNHITSFIT\t{CutArgs.nHitsFit}\n')
                         f.write(f'NSIG\t{CutArgs.nSig}\nDCA\t{CutArgs.dca}\nMASS2\t{CutArgs.m2Min}\t{CutArgs.m2Max}\nRMODE\t{CutArgs.yMode}\n')
                         f.write(f'END')
 
@@ -269,7 +274,6 @@ if (mode in ['sub', 'submit']):
                         os.system(f'sed -i "s|EFF_FAC_PRO|{Args.eff_fac_pro}|g" {tdir}/{Args.title}.{i}.y{item}.vz{vzIdx}.getTerms.sh')
                         os.system(f'sed -i "s|EFF_FAC_PBAR|{Args.eff_fac_pbar}|g" {tdir}/{Args.title}.{i}.y{item}.vz{vzIdx}.getTerms.sh')
                         os.system(f'sed -i "s|TASK_TAG|{Args.title}.y{item}.vz{vzIdx}|g" {tdir}/{Args.title}.{i}.y{item}.vz{vzIdx}.getTerms.sh')
-                        os.system(f'sed -i "s|USE_ETOF|{Args.use_etof}|g" {tdir}/{Args.title}.{i}.y{item}.vz{vzIdx}.getTerms.sh')
                 # for pt scan
                 if CutArgs.ptScan:
                     for item in CutArgs.ptTags:
@@ -281,7 +285,6 @@ if (mode in ['sub', 'submit']):
                         os.system(f'sed -i "s|EFF_FAC_PRO|{Args.eff_fac_pro}|g" {tdir}/{Args.title}.{i}.pt{item}.vz{vzIdx}.getTerms.sh')
                         os.system(f'sed -i "s|EFF_FAC_PBAR|{Args.eff_fac_pbar}|g" {tdir}/{Args.title}.{i}.pt{item}.vz{vzIdx}.getTerms.sh')
                         os.system(f'sed -i "s|TASK_TAG|{Args.title}.pt{item}.vz{vzIdx}|g" {tdir}/{Args.title}.{i}.pt{item}.vz{vzIdx}.getTerms.sh')
-                        os.system(f'sed -i "s|USE_ETOF|{Args.use_etof}|g" {tdir}/{Args.title}.{i}.pt{item}.vz{vzIdx}.getTerms.sh')
 
                 # getTerms job file
                 # for y scan
@@ -622,7 +625,11 @@ if mode in ['col', 'collect']:
     l.log(f'All done. See {col} and {col}.tgz')
 
 # resubmit mode
-    
+if mode == 'resubmit':
+    l = yLog('.resubmit.log')
+    l.log('The resubmit mode is removed from manager system since v4.3!')
+
+r'''
 if mode == 'resubmit':
     l = yLog('resubmit.log')
     l.log('Resubmit mode: find failed jobs and resubmit.')
@@ -693,6 +700,7 @@ if mode == 'resubmit':
                     os.system(f'cd {outDir}/{jobId} && condor_submit {scanTag}.{vzTag}.{jobId[3:]}.getTerms.job')
                     cnt += 1
             l.log('All done!')
+'''
 
 # clean mode
 if mode == 'clean':
@@ -817,10 +825,6 @@ if mode in ['repo', 'report']:
     l.log(f'The TOF efficiency path is: {Args.tof_eff_path}')
     l.log(f'The PID efficiency path is: {Args.pid_eff_path}')
     l.log(f'Maybe we are changing nSigma for systematic uncertainty calculations, the tag is: {Args.nSigmaTag}')
-    # if (Args.pid_eff_mode):
-    #     l.log(f'PID efficiency is momentum dependent.')
-    # else:
-    #     l.log(f'PID efficiency is pT-y dependent.')
 
     if os.path.exists(Args.mergeDir):
         l.log(f'====== As for merge ====== [E]')
