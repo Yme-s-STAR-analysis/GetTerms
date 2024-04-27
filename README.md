@@ -1,4 +1,46 @@
-# Quick Start
+# GetTerms
+
+`author: yghuang`
+
+`version: 4.3`
+
+## Quick Start
+
+1. modify parameters in `conf.py` according to your requirements
+
+2. swicth to ROOT6 and `make`
+
+3. replace `utils/CentParams.h` with the correct one of the very data set
+
+4. change `cent_edge.txt` and `cent_edgeX.txt`
+
+5. run `python3 manager.py submit a` to submit jobs of get terms
+
+    1. you can try `python3 manager.py submit s` to generate job folders and not submit jobs
+
+    2. then use `python3 manager.py submit b` to submit jobs
+
+6. after all the jobs are finished, try `python3 manager.py merge` to hadd them
+
+7. switch back to ROOT5 and run `python3 manager.py calc` to calculate cumulants
+
+8. `python3 manager.py col` to collect cumulant root file, note that, those files did not apply re-weight
+
+9. `python3 manager.py clean [out/merge/calc]` to remove corresponding files
+
+## Patch Note
+
+Version: 4.3
+
+27.04.2024 - Yige Huang
+
+1. Quality controllder now removed unused quantities, like vr, nHitsDedx ...
+
+2. And in StFemtoEvent and StFemtoTrack, unused quantities are also removed
+
+3. resubmit mode is removed from manager system
+
+4. add user's guide
 
 Version: 4.2.2
 
