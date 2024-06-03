@@ -1,6 +1,6 @@
 r'''
-    Version: 4.3
-    Date: 27.04.2024
+    Version: 5.0
+    Date: 03.06.2024
 '''
 
 class Args:
@@ -16,8 +16,7 @@ class Args:
     nSigmaTag = '2p0'
     eff_fac_pro = 1.0
     eff_fac_pbar = 1.0
-    calc_exec = '/star/u/yghuang/Work/DataAnalysis/BES2/19p6/Cumulant/CumCalc/runCumulant'
-    duo_cbwc_exec = '/star/u/yghuang/Work/DataAnalysis/BES2/19p6/Cumulant/CumCalc/duoCBWC'
+    calc_exec = '/star/u/yghuang/.tools/CumulantCalculation/runCumulant'
     title = 'default'
 
 class CutArgs:
@@ -47,7 +46,7 @@ class CutArgs:
 
     # y scan options
     yScan = True
-    yMin = 0.0 # When do pt scan
+    yMin = 0.0 # when do pt scan
     yMax = 0.5 # these values will be default
     yMode = 1  # y min/max and mode (-0.5~0.5)
     yMins = [
