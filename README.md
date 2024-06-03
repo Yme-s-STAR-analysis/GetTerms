@@ -2,7 +2,7 @@
 
 `author: yghuang`
 
-`version: 4.3`
+`version: 5.0`
 
 ## Quick Start
 
@@ -29,6 +29,18 @@
 9. `python3 manager.py clean [out/merge/calc]` to remove corresponding files
 
 ## Patch Note
+
+Version: 5.0
+
+03.06.2024 - Yige Huang
+
+1. Important update: p+pbar is now taken into account, Loader class is updated
+
+2. Remove old EffMaker
+
+3. Optmize manager system
+
+4. Reweight is now a part of calculation
 
 Version: 4.3
 
