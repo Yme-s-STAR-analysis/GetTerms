@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./runCumulant TASKNAME
+./runCumulant TASKNAME cent_edge.txt w8.txt
