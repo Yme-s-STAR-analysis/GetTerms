@@ -31,7 +31,7 @@ void Loader::ReadTrack(float Particle, float eff) {
 	  		_q[r][s] += (pow(Particle,r)/pow(eff, s));
 		}
   	}
-	ppb = fabs(Particle)/eff; // only 1st order
+	ppb += fabs(Particle)/eff; // only 1st order
 }
 
 /*
