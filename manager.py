@@ -3,7 +3,15 @@ r'''
     Cumulant Calculation Manage System
     Author: Yige HUANG
 
-    Latest Revision v4.3 (27.4.2024) - Yige Huang
+    Latest Revision v5.0 (03.06.2024) - Yige Huang
+
+    1. Only one log file will make use
+
+    2. duoCBWC is removed
+
+    3. Reweight parameters are necessary now
+    
+    Revision v4.3 (27.4.2024) - Yige Huang
 
     1. Some quantities are removed, so they won't be written into cfg file
 
@@ -106,8 +114,10 @@ import os
 from conf import Args, CutArgs
 from yLog import yLog
 
-__version__ = '4.3'
-__updatedTime__ = '27.04.2024'
+__version__ = '5.0'
+__updatedTime__ = '03.06.2024'
+
+l = yLog('.ManagerSystem.log')
 
 mode = sys.argv[1]
 assert(mode in ['sub', 'submit', 'mer', 'merge', 'run', 'calc', 'col', 'collect', 'clean', 'repo', 'report'])
@@ -123,19 +133,19 @@ if mode not in ['clean', 'repo', 'report']:
         if not nScan == len(CutArgs.ptMaxs):
             raise Exception('[ERROR] The pt scan max should have a same length with pt tags.')
     if CutArgs.yScan:
-        print(f'Rapidity scan is [ON] with {len(CutArgs.yTags)} jobs.')
-        print(f'During rapidity scan, pT range will be [{CutArgs.ptMin}, {CutArgs.ptMax}].')
-        print(f'{CutArgs.yMins=}')
-        print(f'{CutArgs.yMaxs=}')
-        print(f'{CutArgs.yTags=}')
+        l.log(f'Rapidity scan is [ON] with {len(CutArgs.yTags)} jobs.')
+        l.log(f'During rapidity scan, pT range will be [{CutArgs.ptMin}, {CutArgs.ptMax}].')
+        l.log(f'{CutArgs.yMins=}')
+        l.log(f'{CutArgs.yMaxs=}')
+        l.log(f'{CutArgs.yTags=}')
     else:
-        print(f'Rapidity scan is [OFF].')
+        l.log(f'Rapidity scan is [OFF].')
     if CutArgs.ptScan:
-        print(f'pT scan is [ON] with {len(CutArgs.ptTags)} jobs.')
-        print(f'During pT scan, y range will be [{CutArgs.yMin}, {CutArgs.yMax}].')
-        print(f'{CutArgs.ptMin=}')
-        print(f'{CutArgs.ptMaxs=}')
-        print(f'{CutArgs.ptTags=}')
+        l.log(f'pT scan is [ON] with {len(CutArgs.ptTags)} jobs.')
+        l.log(f'During pT scan, y range will be [{CutArgs.yMin}, {CutArgs.yMax}].')
+        l.log(f'{CutArgs.ptMin=}')
+        l.log(f'{CutArgs.ptMaxs=}')
+        l.log(f'{CutArgs.ptTags=}')
 
 
 with open(Args.fileList) as f:
@@ -147,7 +157,6 @@ bonus = nFiles - nJobs * nFilesPerJob
 
 # submit mode
 if (mode in ['sub', 'submit']):
-    l = yLog('.submit.log')
     if len(sys.argv) == 2:
         sMode = 'a' # by default
         l.log('Generate sub-folders and submit.')
@@ -341,7 +350,6 @@ if (mode in ['sub', 'submit']):
 
 # merge mode
 if mode in ['mer', 'merge']:
-    l = yLog('.merge.log')
     outDir = Args.outDir
     mergeDir = Args.mergeDir
 
@@ -464,7 +472,6 @@ if mode in ['mer', 'merge']:
 
 # run mode
 if mode in ['run', 'calc']:
-    l = yLog('.calc.log')
     mergeDir = Args.mergeDir
     runDir = Args.runDir
 
@@ -490,6 +497,8 @@ if mode in ['run', 'calc']:
                 os.symlink(f'{os.getcwd()}/cent_edge.txt', f'{runDir}/y{item}/cent_edge.txt')
             if not os.path.exists(f'{runDir}/y{item}/Npart.txt'):
                 os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/y{item}/Npart.txt')
+            if not os.path.exists(f'{runDir}/y{item}/w8.txt'):
+                os.symlink(f'{os.getcwd()}/w8.txt', f'{runDir}/y{item}/w8.txt')
             for vzIdx in range(CutArgs.vzBin):
                 if os.path.exists(f'{runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.root'):
                     os.remove(f'{runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.root')
@@ -501,6 +510,7 @@ if mode in ['run', 'calc']:
                 os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.job')
                 os.system(f'cd {runDir}/y{item} && condor_submit {Args.title}.y{item}.vz{vzIdx}.calc.job')
                 l.log(f' - Current y{item} - Vz {vzIdx}')
+
             # RefMult3X
             if not os.path.exists(f'{runDir}/y{item}X'):
                 os.mkdir(f'{runDir}/y{item}X')
@@ -509,7 +519,9 @@ if mode in ['run', 'calc']:
             if not os.path.exists(f'{runDir}/y{item}X/cent_edge.txt'):
                 os.symlink(f'{os.getcwd()}/cent_edgeX.txt', f'{runDir}/y{item}X/cent_edge.txt')
             if not os.path.exists(f'{runDir}/y{item}X/Npart.txt'):
-                os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/y{item}X/Npart.txt')
+                os.symlink(f'{os.getcwd()}/NpartX.txt', f'{runDir}/y{item}X/Npart.txt')
+            if not os.path.exists(f'{runDir}/y{item}X/w8.txt'):
+                os.symlink(f'{os.getcwd()}/w8X.txt', f'{runDir}/y{item}X/w8.txt')
             for vzIdx in range(CutArgs.vzBin):
                 if os.path.exists(f'{runDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}X.root'):
                     os.remove(f'{runDir}/y{item}X/{Args.title}.y{item}.vz{vzIdx}X.root')
@@ -536,7 +548,8 @@ if mode in ['run', 'calc']:
                 os.symlink(f'{os.getcwd()}/cent_edge.txt', f'{runDir}/pt{item}/cent_edge.txt')
             if not os.path.exists(f'{runDir}/pt{item}/Npart.txt'):
                 os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/pt{item}/Npart.txt')
-
+            if not os.path.exists(f'{runDir}/pt{item}/w8.txt'):
+                os.symlink(f'{os.getcwd()}/w8.txt', f'{runDir}/pt{item}/w8.txt')
             for vzIdx in range(CutArgs.vzBin):
                 if os.path.exists(f'{runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.root'):
                     os.remove(f'{runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.root')
@@ -557,7 +570,9 @@ if mode in ['run', 'calc']:
             if not os.path.exists(f'{runDir}/pt{item}X/cent_edge.txt'):
                 os.symlink(f'{os.getcwd()}/cent_edgeX.txt', f'{runDir}/pt{item}X/cent_edge.txt')
             if not os.path.exists(f'{runDir}/pt{item}X/Npart.txt'):
-                os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/pt{item}X/Npart.txt')
+                os.symlink(f'{os.getcwd()}/NpartX.txt', f'{runDir}/pt{item}X/Npart.txt')
+            if not os.path.exists(f'{runDir}/pt{item}X/w8.txt'):
+                os.symlink(f'{os.getcwd()}/w8X.txt', f'{runDir}/pt{item}X/w8.txt')
             for vzIdx in range(CutArgs.vzBin):
                 if os.path.exists(f'{runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}X.root'):
                     os.remove(f'{runDir}/pt{item}X/{Args.title}.pt{item}.vz{vzIdx}X.root')
@@ -574,19 +589,14 @@ if mode in ['run', 'calc']:
 
 # collect mode
 if mode in ['col', 'collect']:
-    l = yLog('.collect.log')
     mergeDir = Args.mergeDir
     runDir = Args.runDir
-    duo_cbwc = Args.duo_cbwc_exec
 
     if not os.path.exists(mergeDir):
         raise Exception(f'{mergeDir=} which does not exist.')
 
     if not os.path.exists(runDir):
         raise Exception(f'{runDir=} which does not exist.')
-    
-    if not os.path.exists(duo_cbwc):
-        raise Exception(f'{duo_cbwc=} which does not exist.')
     
     l.log('Here are the task names to be collected:')
     if CutArgs.yScan:
@@ -626,7 +636,6 @@ if mode in ['col', 'collect']:
 
 # clean mode
 if mode == 'clean':
-    l = yLog('.clean.log')
     if len(sys.argv) != 3:
         l.log(f'Clean All: It is dangerous! This function is forbiden!')
     else:
@@ -677,7 +686,6 @@ if mode == 'clean':
 
 # report mode
 if mode in ['repo', 'report']:
-    l = yLog('.report.log')
     l.log('Here is the Report:')
     l.log(f'Current verion of manager: {__version__} ({__updatedTime__})')
 
