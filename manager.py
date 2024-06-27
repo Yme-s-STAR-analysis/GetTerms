@@ -175,7 +175,7 @@ if (mode in ['sub', 'submit']):
     if len(sys.argv) == 2:
         sMode = 'a' # by default
         l.log('Generate sub-folders and submit.')
-    elif len(sys.argv == 3):
+    elif len(sys.argv) == 3:
         sMode = sys.argv[2]
         assert(sMode in ['a', 's', 'b', 'r']) # this r: read resubmit.id.txt and resubmit
         if sMode == 'a':
@@ -215,10 +215,10 @@ if (mode in ['sub', 'submit']):
 
     if sMode == 'r':
         rids = []
-        if len(sys.argv == 3): # file mode resubmit
+        if len(sys.argv) == 3: # file mode resubmit
             rids = open('resubmit.id.txt').readlines()
             rids = [item.strip() for item in rids]
-        elif len(sys.argv == 4): # following ids resubmit
+        elif len(sys.argv) == 4: # following ids resubmit
             rids = sys.argv[3]
             if rids.endswith(',') or rids.startswith(','): # remove last and first ,
                 rids = rids.strip(',')
