@@ -2,7 +2,7 @@
 
 `author: yghuang`
 
-`version: 5.0`
+`version: 6.0`
 
 ## Quick Start
 
@@ -29,6 +29,18 @@
 9. `python3 manager.py clean [out/merge/calc]` to remove corresponding files
 
 ## Patch Note
+
+Version: 6.0
+
+26.06.2024 - Yige Huang
+
+* Since we focus on RefMult3X results, calculating cumulants with RefMult3 is now an option.
+
+1. By default, Loader of RefMult3 will not be used.
+
+2. One can switch on it when compile: `make EXTRA_CPPFLAG=-D__REFMULT3__`
+
+3. Manager system was changed accordingly.
 
 Version: 5.0
 
