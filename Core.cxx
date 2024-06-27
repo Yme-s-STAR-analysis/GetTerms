@@ -265,10 +265,10 @@ int main(int argc, char** argv){
 			double tof_effX = effMaker->GetTofEff(positive, pt, YP, centBinX, vz);
 
 			effX = tpc_effX * pid_eff;
-			if (needTOF) { eff *= tof_effX; }
+			if (needTOF) { effX *= tof_effX; }
 			double eff_factor = positive ? eff_factor_pro : eff_factor_pbar;
 			effX *= eff_factor;
-            effX = effX > 1.0 ? 1.0 : effX
+            effX = effX > 1.0 ? 1.0 : effX;
 
 			if (positive) {
 				lder_pX->ReadTrack(1.0, effX);
