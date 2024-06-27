@@ -1,14 +1,18 @@
 /*
 
-	Version: 4.3 (27.4.2024)
+	Version: 6.0 (26.06.2024)
+
+	1. RefMult3 is off by default, one can switch it on by adding extra flag when compile
+
+	Version: 4.3 (27.04.2024)
 
 	1. Some useless quantites are removed, and interfaces are changed accordingly
 
-	Version: 4.2 (5.4.2024)
+	Version: 4.2 (5.04.2024)
 
 	1. Using latest CentCorrTool with Indian method
 
-	Version: 4.0 (30.1.2024)
+	Version: 4.0 (30.01.2024)
 
 	1. Support RefMult3X
 
@@ -110,9 +114,11 @@ int main(int argc, char** argv){
 	// BadRunChecker cker("/star/u/yghuang/Work/DataAnalysis/BES2/7p7/cumulant/Oct25/empty.list"); // if need a bad run checker
     // prepare a np hist (TH2D for Np and RefMult3)
 	// only for |y| < 0.5
+#ifdef __REFMULT3__
     TH2D* hNpRef3 = new TH2D("hNprotonRefMult3", ";RefMult3;N_{proton}", 850, -0.5, 849.5, 100, -0.5, 99.5);
     TH2D* hNaRef3 = new TH2D("hNantiprotonRefMult3", ";RefMult3;N_{antiproton}", 850, -0.5, 849.5, 30, -0.5, 29.5);
     TH2D* hNnRef3 = new TH2D("hNnetprotonRefMult3", ";RefMult3;N_{net-proton}", 850, -0.5, 849.5, 80, -10.5, 69.5);
+#endif
     TH2D* hNpRef3X = new TH2D("hNprotonRefMult3X", ";RefMult3X;N_{proton}", 1050, -0.5, 1049.5, 100, -0.5, 99.5);
     TH2D* hNaRef3X = new TH2D("hNantiprotonRefMult3X", ";RefMult3X;N_{antiproton}", 1050, -0.5, 1049.5, 30, -0.5, 29.5);
     TH2D* hNnRef3X = new TH2D("hNnetprotonRefMult3X", ";RefMult3X;N_{net-proton}", 1050, -0.5, 1049.5, 80, -10.5, 69.5);
@@ -156,10 +162,12 @@ int main(int argc, char** argv){
 	chain->SetBranchAddress("StFemtoEvent", &event);
 	int MaxMult = 1000;
 
+#ifdef __REFMULT3__
 	TFile* terms3 = new TFile(Form("%s.root", task_tag), "recreate");
 	Loader* lder_n = new Loader("Netp", terms3, MaxMult);
 	Loader* lder_p = new Loader("Pro", terms3, MaxMult);
 	Loader* lder_a = new Loader("Pbar", terms3, MaxMult);
+#endif
 
 	TFile* terms3X = new TFile(Form("%sX.root", task_tag), "recreate");
 	Loader* lder_nX = new Loader("Netp", terms3X, MaxMult);
@@ -178,12 +186,18 @@ int main(int argc, char** argv){
 
 		// Make Event Cuts
 		double vz = event->GetVz();
+
+#ifdef __REFMULT3__
 		double refMult3 = event->GetRefMult3();
-		double refMult3X = event->GetRefMult3X();
 		int centBin = cent_def->GetCentrality9(refMult3);
+		if (refMult3 > MaxMult) { continue; }
+		if (centBin < 0) { continue; }
+#endif
+
+		double refMult3X = event->GetRefMult3X();
 		int centBinX = cent_def->GetCentrality9(refMult3X, true);
-		if (refMult3 > MaxMult || refMult3X > MaxMult){ continue; }
-		if (centBin < 0 || centBinX < 0){ continue; }
+		if (refMult3X > MaxMult) { continue; }
+		if (centBinX < 0) { continue; }
 
 		if (qc->isBadEvent(vz)) { continue; }
 
@@ -224,77 +238,85 @@ int main(int argc, char** argv){
 			// detector efficiency
 
 			// for corrected case:
+			double pid_eff = effMaker->GetPidEff(positive, pt, YP);
+
+#ifdef __REFMULT3__
 			double eff = 1.0;
 			double tpc_eff = effMaker->GetTpcEff(positive, pt, YP, centBin, vz);
 			double tof_eff = effMaker->GetTofEff(positive, pt, YP, centBin, vz);
+
+			eff = tpc_eff * pid_eff;
+			if (needTOF) { eff *= tof_eff; }
+			double eff_factor = positive ? eff_factor_pro : eff_factor_pbar;
+			eff *= eff_factor;
+            eff = eff > 1.0 ? 1.0 : eff;
+
+			if (positive) {
+				lder_p->ReadTrack(1.0, eff);
+				lder_n->ReadTrack(1.0, eff);
+			} else {
+				lder_a->ReadTrack(1.0, eff);
+				lder_n->ReadTrack(-1.0, eff);
+			}
+#endif
 
 			double effX = 1.0;
 			double tpc_effX = effMaker->GetTpcEff(positive, pt, YP, centBinX, vz);
 			double tof_effX = effMaker->GetTofEff(positive, pt, YP, centBinX, vz);
 
-			double pid_eff = effMaker->GetPidEff(positive, pt, YP);
+			effX = tpc_effX * pid_eff;
+			if (needTOF) { eff *= tof_effX; }
+			double eff_factor = positive ? eff_factor_pro : eff_factor_pbar;
+			effX *= eff_factor;
+            effX = effX > 1.0 ? 1.0 : effX
 
-			if (needTOF) {
-				eff = tpc_eff * tof_eff * pid_eff;
-				effX = tpc_effX * tof_effX * pid_eff;
-			} else {
-				eff = tpc_eff * pid_eff;
-				effX = tpc_effX * pid_eff;
-			}
-
-			if (positive) { 
-				eff *= eff_factor_pro; 
-				effX *= eff_factor_pro; 
-			} 
-			else { 
-				eff *= eff_factor_pbar; 
-				effX *= eff_factor_pbar; 
-			}
-
-            eff = eff > 1.0 ? 1.0 : eff;
-            effX = effX > 1.0 ? 1.0 : effX;
-			
 			if (positive) {
-				lder_p->ReadTrack(1.0, eff);
-				lder_n->ReadTrack(1.0, eff);
 				lder_pX->ReadTrack(1.0, effX);
 				lder_nX->ReadTrack(1.0, effX);
 			} else {
-				lder_a->ReadTrack(1.0, eff);
-				lder_n->ReadTrack(-1.0, eff);
 				lder_aX->ReadTrack(1.0, effX);
 				lder_nX->ReadTrack(-1.0, effX);
 			}
+
 		} // track loop ends
 
+#ifdef __REFMULT3__
 		lder_p->Store(refMult3);
 		lder_a->Store(refMult3);
 		lder_n->Store(refMult3);
-		lder_pX->Store(refMult3X);
-		lder_aX->Store(refMult3X);
-		lder_nX->Store(refMult3X);
-
         hNpRef3->Fill(refMult3, np);
         hNaRef3->Fill(refMult3, na);
         hNnRef3->Fill(refMult3, np - na);
+#endif
+
+		lder_pX->Store(refMult3X);
+		lder_aX->Store(refMult3X);
+		lder_nX->Store(refMult3X);
         hNpRef3X->Fill(refMult3X, np);
         hNaRef3X->Fill(refMult3X, na);
         hNnRef3X->Fill(refMult3X, np - na);
 
   	} // event loop ends
 	
+#ifdef __REFMULT3__
 	terms3->cd();
 	terms3->Write();
 	terms3->Close();
+#endif
+
 	terms3X->cd();
 	terms3X->Write();
 	terms3X->Close();
 
     TFile* p_dist_file = new TFile(Form("%s.pDist.root", task_tag), "recreate");
     p_dist_file->cd();
+
+#ifdef __REFMULT3__
     hNpRef3->Write();
     hNaRef3->Write();
     hNnRef3->Write();
+#endif
+
     hNpRef3X->Write();
     hNaRef3X->Write();
     hNnRef3X->Write();
