@@ -1,6 +1,6 @@
 r'''
-    Version: 5.0
-    Date: 03.06.2024
+    Version: 6.0
+    Date: 26.06.2024
 '''
 
 class Args:
@@ -18,6 +18,7 @@ class Args:
     eff_fac_pbar = 1.0
     calc_exec = '/star/u/yghuang/.tools/CumulantCalculation/runCumulant'
     title = 'default'
+    ref3 = False
 
 class CutArgs:
     vzBin = 1

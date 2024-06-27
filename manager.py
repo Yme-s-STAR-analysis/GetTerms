@@ -3,7 +3,17 @@ r'''
     Cumulant Calculation Manage System
     Author: Yige HUANG
 
-    Latest Revision v5.0 (03.06.2024) - Yige Huang
+    Latest Revision v6.0 (26.03.2024) - Yige Huang
+
+    1. RefMult3 is not a must, so the behavior of manager system changes accordingly
+
+    2. resubmit returns, call it with submit mode and option 'r'
+
+        usage: 1) python3 manager.py submit r 1,2,4 -> resubmit job id 1, 2 and 4
+
+        usage: 2) python3 manager.py submit r -> read 'resubmit.id.txt' and resubmit job ids in it
+    
+    v5.0 (03.06.2024) - Yige Huang
 
     1. Only one log file will make use
 
@@ -114,8 +124,8 @@ import os
 from conf import Args, CutArgs
 from yLog import yLog
 
-__version__ = '5.0'
-__updatedTime__ = '03.06.2024'
+__version__ = '6.0'
+__updatedTime__ = '26.06.2024'
 
 l = yLog('.ManagerSystem.log')
 
@@ -146,7 +156,12 @@ if mode not in ['clean', 'repo', 'report']:
         l.log(f'{CutArgs.ptMin=}')
         l.log(f'{CutArgs.ptMaxs=}')
         l.log(f'{CutArgs.ptTags=}')
-
+    else:
+        l.log(f'pT scan is [OFF].')
+    if Args.ref3:
+        l.log(f'RefMult3 is [ON].')
+    else:
+        l.log(f'RefMult3 is [OFF].')
 
 with open(Args.fileList) as f:
     flist = f.readlines()
@@ -160,15 +175,23 @@ if (mode in ['sub', 'submit']):
     if len(sys.argv) == 2:
         sMode = 'a' # by default
         l.log('Generate sub-folders and submit.')
-    else:
+    elif len(sys.argv == 3):
         sMode = sys.argv[2]
-        assert(sMode in ['a', 's', 'b'])
+        assert(sMode in ['a', 's', 'b', 'r']) # this r: read resubmit.id.txt and resubmit
         if sMode == 'a':
             l.log('Generate sub-folders and submit.')
         if sMode == 's':
             l.log('Simulation mode, only generate sub-folders, you can submit the jobs with option [b].')
         if sMode == 'b':
             l.log('Submit jobs with pre-generated sub-folders.')
+        if sMode == 'r':
+            l.log('Resubmit jobs from "resubmit.id.txt"')
+            if not os.path.exists('resubmit.id.txt'):
+                raise Exception(f'[ERROR] Cannot open resubmit.id.txt!')
+    else:
+        sMode = sys.argv[2]
+        assert(sMode == 'r') # this r: read following job ids
+        l.log(f'Resubmit jobs: {sys.argv[4]}')
     l.log(f'===Submit System for GetTerms===')
     l.log('Summary of configuration are listed below:')
     l.log(f'{Args.nFilesPerJob=}')
@@ -180,15 +203,35 @@ if (mode in ['sub', 'submit']):
     l.log(f'{Args.nSigmaTag=}')
     l.log(f'{Args.eff_fac_pro=}')
     l.log(f'{Args.eff_fac_pbar=}')
+    l.log(f'{Args.ref3=}')
     l.log(f'{nFiles} files in total, {nJobs} regular jobs with {nFilesPerJob} files to handle.')
     if bonus:
         l.log(f'Bonus job will manage {bonus} jobs.')
-
 
     l.log('Now preparing Job Directory and File Lists. May take few seconds.')
     outDir = Args.outDir
     if not os.path.exists(outDir):
         os.mkdir(outDir)
+
+    if sMode == 'r':
+        rids = []
+        if len(sys.argv == 3): # file mode resubmit
+            rids = open('resubmit.id.txt').readlines()
+            rids = [item.strip() for item in rids]
+        elif len(sys.argv == 4): # following ids resubmit
+            rids = sys.argv[3]
+            if rids.endswith(',') or rids.startswith(','): # remove last and first ,
+                rids = rids.strip(',')
+            rids = rids.split(',')
+        rids = [item for item in rids if item != '']
+        if len(rids) == 0: # invalid ids, for example, full ','
+            raise Exception(f'[ERROR] No valid job id is found!')
+        l.log(f'{len(rids)} jobs will be resubmitted:')
+        for idx, item in enumerate(rids):
+            l.log(f' - [{idx+1} / {len(rids)}]: {item}')
+            for vzIdx in range(CutArgs.vzBin):
+                os.system(f'cd {outDir}/job{item} && condor_submit {Args.title}.{item}.pt{item}.vz{vzIdx}.getTerms.job')
+        l.log('Done.')
 
     if sMode in ['a', 's']:
         for i in range(nJobs):
@@ -354,7 +397,7 @@ if mode in ['mer', 'merge']:
     mergeDir = Args.mergeDir
 
     if not os.path.exists(outDir):
-        raise Exception(f'{outDir=} which does not exist.')
+        raise Exception(f'[ERROR] {outDir=} which does not exist.')
 
     if not os.path.exists(mergeDir):
         os.mkdir(mergeDir)
@@ -368,25 +411,31 @@ if mode in ['mer', 'merge']:
         l.log('For pT scan:')
         for idx, item in enumerate(CutArgs.ptTags):
             l.log(f'Item {idx+1:03d}: pt{item}')
+    
+    if Args.ref3:
+        l.log('RefMult3 and RefMult3X results will be merged respectively.')
+    else:
+        l.log('Only RefMult3X results will be merged.')
 
     # for y scan
     if CutArgs.yScan:
         for item in CutArgs.yTags:
             # mTerms
-            if not os.path.exists(f'{mergeDir}/y{item}'):
-                os.mkdir(f'{mergeDir}/y{item}')
-            os.system(f'cp merge.py {mergeDir}/y{item}')
-            os.system(f'cp yLog.py {mergeDir}/y{item}')
-            for vzIdx in range(CutArgs.vzBin):
-                os.system(f'cp merge.sh {mergeDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.merge.sh')
-                os.system(f'cp merge.job {mergeDir}/y{item}/{Args.title}.vz{vzIdx}.merge.job')
-                os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {mergeDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.merge.sh')
-                os.system(f'sed -i "s|OUTDIR|{outDir}|g" {mergeDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.merge.sh')
-                os.system(f'sed -i "s|MERDIR|{mergeDir}|g" {mergeDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.merge.sh')
-                os.system(f'sed -i "s|SHELLNAME|{Args.title}.y{item}.vz{vzIdx}.merge.sh|g" {mergeDir}/y{item}/{Args.title}.vz{vzIdx}.merge.job')
-                os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {mergeDir}/y{item}/{Args.title}.vz{vzIdx}.merge.job')
-                os.system(f'cd {mergeDir}/y{item} && condor_submit {Args.title}.vz{vzIdx}.merge.job')
-                l.log(f' - Current y{item} - Vz {vzIdx}')
+            if Args.ref3:
+                if not os.path.exists(f'{mergeDir}/y{item}'):
+                    os.mkdir(f'{mergeDir}/y{item}')
+                os.system(f'cp merge.py {mergeDir}/y{item}')
+                os.system(f'cp yLog.py {mergeDir}/y{item}')
+                for vzIdx in range(CutArgs.vzBin):
+                    os.system(f'cp merge.sh {mergeDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.merge.sh')
+                    os.system(f'cp merge.job {mergeDir}/y{item}/{Args.title}.vz{vzIdx}.merge.job')
+                    os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {mergeDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.merge.sh')
+                    os.system(f'sed -i "s|OUTDIR|{outDir}|g" {mergeDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.merge.sh')
+                    os.system(f'sed -i "s|MERDIR|{mergeDir}|g" {mergeDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.merge.sh')
+                    os.system(f'sed -i "s|SHELLNAME|{Args.title}.y{item}.vz{vzIdx}.merge.sh|g" {mergeDir}/y{item}/{Args.title}.vz{vzIdx}.merge.job')
+                    os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {mergeDir}/y{item}/{Args.title}.vz{vzIdx}.merge.job')
+                    os.system(f'cd {mergeDir}/y{item} && condor_submit {Args.title}.vz{vzIdx}.merge.job')
+                    l.log(f' - Current y{item} - Vz {vzIdx}')
             # mTerms RefMult3X
             if not os.path.exists(f'{mergeDir}/y{item}X'):
                 os.mkdir(f'{mergeDir}/y{item}X')
@@ -422,20 +471,21 @@ if mode in ['mer', 'merge']:
     if CutArgs.ptScan:
         for item in CutArgs.ptTags:
             # mTerms
-            if not os.path.exists(f'{mergeDir}/pt{item}'):
-                os.mkdir(f'{mergeDir}/pt{item}')
-            os.system(f'cp merge.py {mergeDir}/pt{item}')
-            os.system(f'cp yLog.py {mergeDir}/pt{item}')
-            for vzIdx in range(CutArgs.vzBin):
-                os.system(f'cp merge.sh {mergeDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.merge.sh')
-                os.system(f'cp merge.job {mergeDir}/pt{item}/{Args.title}.vz{vzIdx}.merge.job')
-                os.system(f'sed -i "s|TASKNAME|{Args.title}.pt{item}.vz{vzIdx}|g" {mergeDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.merge.sh')
-                os.system(f'sed -i "s|OUTDIR|{outDir}|g" {mergeDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.merge.sh')
-                os.system(f'sed -i "s|MERDIR|{mergeDir}|g" {mergeDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.merge.sh')
-                os.system(f'sed -i "s|SHELLNAME|{Args.title}.pt{item}.vz{vzIdx}.merge.sh|g" {mergeDir}/pt{item}/{Args.title}.vz{vzIdx}.merge.job')
-                os.system(f'sed -i "s|TASKNAME|{Args.title}.pt{item}.vz{vzIdx}|g" {mergeDir}/pt{item}/{Args.title}.vz{vzIdx}.merge.job')
-                os.system(f'cd {mergeDir}/pt{item} && condor_submit {Args.title}.vz{vzIdx}.merge.job')
-                l.log(f' - Current pt{item} - Vz {vzIdx}')
+            if Args.ref3:
+                if not os.path.exists(f'{mergeDir}/pt{item}'):
+                    os.mkdir(f'{mergeDir}/pt{item}')
+                os.system(f'cp merge.py {mergeDir}/pt{item}')
+                os.system(f'cp yLog.py {mergeDir}/pt{item}')
+                for vzIdx in range(CutArgs.vzBin):
+                    os.system(f'cp merge.sh {mergeDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.merge.sh')
+                    os.system(f'cp merge.job {mergeDir}/pt{item}/{Args.title}.vz{vzIdx}.merge.job')
+                    os.system(f'sed -i "s|TASKNAME|{Args.title}.pt{item}.vz{vzIdx}|g" {mergeDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.merge.sh')
+                    os.system(f'sed -i "s|OUTDIR|{outDir}|g" {mergeDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.merge.sh')
+                    os.system(f'sed -i "s|MERDIR|{mergeDir}|g" {mergeDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.merge.sh')
+                    os.system(f'sed -i "s|SHELLNAME|{Args.title}.pt{item}.vz{vzIdx}.merge.sh|g" {mergeDir}/pt{item}/{Args.title}.vz{vzIdx}.merge.job')
+                    os.system(f'sed -i "s|TASKNAME|{Args.title}.pt{item}.vz{vzIdx}|g" {mergeDir}/pt{item}/{Args.title}.vz{vzIdx}.merge.job')
+                    os.system(f'cd {mergeDir}/pt{item} && condor_submit {Args.title}.vz{vzIdx}.merge.job')
+                    l.log(f' - Current pt{item} - Vz {vzIdx}')
             # mTerms RefMult3X
             if not os.path.exists(f'{mergeDir}/pt{item}X'):
                 os.mkdir(f'{mergeDir}/pt{item}X')
@@ -476,10 +526,15 @@ if mode in ['run', 'calc']:
     runDir = Args.runDir
 
     if not os.path.exists(mergeDir):
-        raise Exception(f'{mergeDir=} which does not exist.')
+        raise Exception(f'[ERROR] {mergeDir=} which does not exist.')
     
     if not os.path.exists(runDir):
         os.mkdir(runDir)
+
+    if Args.ref3:
+        l.log('RefMult3 and RefMult3X results will be calculated respectively.')
+    else:
+        l.log('Only RefMult3X results will be calculated.')
 
     l.log('Here are the task names to be calculated:')
     if CutArgs.yScan:
@@ -489,27 +544,28 @@ if mode in ['run', 'calc']:
 
         for item in CutArgs.yTags:
             # RefMult3
-            if not os.path.exists(f'{runDir}/y{item}'):
-                os.mkdir(f'{runDir}/y{item}')
-            if not os.path.exists(f'{runDir}/y{item}/runCumulant'):
-                os.symlink(Args.calc_exec, f'{runDir}/y{item}/runCumulant')
-            if not os.path.exists(f'{runDir}/y{item}/cent_edge.txt'):
-                os.symlink(f'{os.getcwd()}/cent_edge.txt', f'{runDir}/y{item}/cent_edge.txt')
-            if not os.path.exists(f'{runDir}/y{item}/Npart.txt'):
-                os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/y{item}/Npart.txt')
-            if not os.path.exists(f'{runDir}/y{item}/w8.txt'):
-                os.symlink(f'{os.getcwd()}/w8.txt', f'{runDir}/y{item}/w8.txt')
-            for vzIdx in range(CutArgs.vzBin):
-                if os.path.exists(f'{runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.root'):
-                    os.remove(f'{runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.root')
-                os.symlink(f'{mergeDir}/{Args.title}.y{item}.vz{vzIdx}.root', f'{runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.root')
-                os.system(f'cp calc.sh {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.sh')
-                os.system(f'cp calc.job {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.job')
-                os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.sh')
-                os.system(f'sed -i "s|SHELLNAME|{Args.title}.y{item}.vz{vzIdx}.calc.sh|g" {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.job')
-                os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.job')
-                os.system(f'cd {runDir}/y{item} && condor_submit {Args.title}.y{item}.vz{vzIdx}.calc.job')
-                l.log(f' - Current y{item} - Vz {vzIdx}')
+            if Args.ref3:
+                if not os.path.exists(f'{runDir}/y{item}'):
+                    os.mkdir(f'{runDir}/y{item}')
+                if not os.path.exists(f'{runDir}/y{item}/runCumulant'):
+                    os.symlink(Args.calc_exec, f'{runDir}/y{item}/runCumulant')
+                if not os.path.exists(f'{runDir}/y{item}/cent_edge.txt'):
+                    os.symlink(f'{os.getcwd()}/cent_edge.txt', f'{runDir}/y{item}/cent_edge.txt')
+                if not os.path.exists(f'{runDir}/y{item}/Npart.txt'):
+                    os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/y{item}/Npart.txt')
+                if not os.path.exists(f'{runDir}/y{item}/w8.txt'):
+                    os.symlink(f'{os.getcwd()}/w8.txt', f'{runDir}/y{item}/w8.txt')
+                for vzIdx in range(CutArgs.vzBin):
+                    if os.path.exists(f'{runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.root'):
+                        os.remove(f'{runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.root')
+                    os.symlink(f'{mergeDir}/{Args.title}.y{item}.vz{vzIdx}.root', f'{runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.root')
+                    os.system(f'cp calc.sh {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.sh')
+                    os.system(f'cp calc.job {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.job')
+                    os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.sh')
+                    os.system(f'sed -i "s|SHELLNAME|{Args.title}.y{item}.vz{vzIdx}.calc.sh|g" {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.job')
+                    os.system(f'sed -i "s|TASKNAME|{Args.title}.y{item}.vz{vzIdx}|g" {runDir}/y{item}/{Args.title}.y{item}.vz{vzIdx}.calc.job')
+                    os.system(f'cd {runDir}/y{item} && condor_submit {Args.title}.y{item}.vz{vzIdx}.calc.job')
+                    l.log(f' - Current y{item} - Vz {vzIdx}')
 
             # RefMult3X
             if not os.path.exists(f'{runDir}/y{item}X'):
@@ -538,29 +594,31 @@ if mode in ['run', 'calc']:
         for idx, item in enumerate(CutArgs.ptTags):
             l.log('For pt scan:')
             l.log(f'Item {idx+1:03d} - pt{item}')
+
         for item in CutArgs.ptTags:
             # RefMult3
-            if not os.path.exists(f'{runDir}/pt{item}'):
-                os.mkdir(f'{runDir}/pt{item}')
-            if not os.path.exists(f'{runDir}/pt{item}/runCumulant'):
-                os.symlink(Args.calc_exec, f'{runDir}/pt{item}/runCumulant')
-            if not os.path.exists(f'{runDir}/pt{item}/cent_edge.txt'):
-                os.symlink(f'{os.getcwd()}/cent_edge.txt', f'{runDir}/pt{item}/cent_edge.txt')
-            if not os.path.exists(f'{runDir}/pt{item}/Npart.txt'):
-                os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/pt{item}/Npart.txt')
-            if not os.path.exists(f'{runDir}/pt{item}/w8.txt'):
-                os.symlink(f'{os.getcwd()}/w8.txt', f'{runDir}/pt{item}/w8.txt')
-            for vzIdx in range(CutArgs.vzBin):
-                if os.path.exists(f'{runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.root'):
-                    os.remove(f'{runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.root')
-                os.symlink(f'{mergeDir}/{Args.title}.pt{item}.vz{vzIdx}.root', f'{runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.root')
-                os.system(f'cp calc.sh {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.sh')
-                os.system(f'cp calc.job {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
-                os.system(f'sed -i "s|TASKNAME|{Args.title}.pt{item}.vz{vzIdx}|g" {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.sh')
-                os.system(f'sed -i "s|SHELLNAME|{Args.title}.pt{item}.vz{vzIdx}.calc.sh|g" {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
-                os.system(f'sed -i "s|TASKNAME|pt{item}.vz{vzIdx}|g" {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
-                os.system(f'cd {runDir}/pt{item} && condor_submit {Args.title}.pt{item}.vz{vzIdx}.calc.job')
-                l.log(f' - Current pt{item} - Vz {vzIdx}')
+            if Args.ref3:
+                if not os.path.exists(f'{runDir}/pt{item}'):
+                    os.mkdir(f'{runDir}/pt{item}')
+                if not os.path.exists(f'{runDir}/pt{item}/runCumulant'):
+                    os.symlink(Args.calc_exec, f'{runDir}/pt{item}/runCumulant')
+                if not os.path.exists(f'{runDir}/pt{item}/cent_edge.txt'):
+                    os.symlink(f'{os.getcwd()}/cent_edge.txt', f'{runDir}/pt{item}/cent_edge.txt')
+                if not os.path.exists(f'{runDir}/pt{item}/Npart.txt'):
+                    os.symlink(f'{os.getcwd()}/Npart.txt', f'{runDir}/pt{item}/Npart.txt')
+                if not os.path.exists(f'{runDir}/pt{item}/w8.txt'):
+                    os.symlink(f'{os.getcwd()}/w8.txt', f'{runDir}/pt{item}/w8.txt')
+                for vzIdx in range(CutArgs.vzBin):
+                    if os.path.exists(f'{runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.root'):
+                        os.remove(f'{runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.root')
+                    os.symlink(f'{mergeDir}/{Args.title}.pt{item}.vz{vzIdx}.root', f'{runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.root')
+                    os.system(f'cp calc.sh {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.sh')
+                    os.system(f'cp calc.job {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
+                    os.system(f'sed -i "s|TASKNAME|{Args.title}.pt{item}.vz{vzIdx}|g" {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.sh')
+                    os.system(f'sed -i "s|SHELLNAME|{Args.title}.pt{item}.vz{vzIdx}.calc.sh|g" {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
+                    os.system(f'sed -i "s|TASKNAME|pt{item}.vz{vzIdx}|g" {runDir}/pt{item}/{Args.title}.pt{item}.vz{vzIdx}.calc.job')
+                    os.system(f'cd {runDir}/pt{item} && condor_submit {Args.title}.pt{item}.vz{vzIdx}.calc.job')
+                    l.log(f' - Current pt{item} - Vz {vzIdx}')
 
             # RefMult3X
             if not os.path.exists(f'{runDir}/pt{item}X'):
@@ -593,10 +651,10 @@ if mode in ['col', 'collect']:
     runDir = Args.runDir
 
     if not os.path.exists(mergeDir):
-        raise Exception(f'{mergeDir=} which does not exist.')
+        raise Exception(f'[ERROR] {mergeDir=} which does not exist.')
 
     if not os.path.exists(runDir):
-        raise Exception(f'{runDir=} which does not exist.')
+        raise Exception(f'[ERROR] {runDir=} which does not exist.')
     
     l.log('Here are the task names to be collected:')
     if CutArgs.yScan:
@@ -613,19 +671,26 @@ if mode in ['col', 'collect']:
     if os.path.exists(col):
         l.log(f'Already have {col} now removing it.')
         os.system(f'rm -rf {col}')
+
+    if Args.ref3:
+        l.log('RefMult3 and RefMult3X results will be collected.')
+    else:
+        l.log('Only RefMult3X results will be collected.')
     
     os.mkdir(col)
     if CutArgs.yScan:
         for item in CutArgs.yTags:
             for vzIdx in range(CutArgs.vzBin):
                 os.system(f'cp {mergeDir}/{Args.title}.y{item}.vz{vzIdx}.pDist.root {col}/')
-                os.system(f'cp {runDir}/y{item}/cum.cbwc.{Args.title}.y{item}.vz{vzIdx}.root {col}/')
+                if Args.ref3:
+                    os.system(f'cp {runDir}/y{item}/cum.cbwc.{Args.title}.y{item}.vz{vzIdx}.root {col}/')
                 os.system(f'cp {runDir}/y{item}X/cum.cbwc.{Args.title}.y{item}.vz{vzIdx}X.root {col}/')
     if CutArgs.ptScan:
         for item in CutArgs.ptTags:
             for vzIdx in range(CutArgs.vzBin):
                 os.system(f'cp {mergeDir}/{Args.title}.pt{item}.vz{vzIdx}.pDist.root {col}/')
-                os.system(f'cp {runDir}/pt{item}/cum.cbwc.{Args.title}.pt{item}.vz{vzIdx}.root {col}/')
+                if Args.ref3:
+                    os.system(f'cp {runDir}/pt{item}/cum.cbwc.{Args.title}.pt{item}.vz{vzIdx}.root {col}/')
                 os.system(f'cp {runDir}/pt{item}X/cum.cbwc.{Args.title}.pt{item}.vz{vzIdx}X.root {col}/')
     
     if os.path.exists(f'{col}.tgz'):
@@ -641,7 +706,7 @@ if mode == 'clean':
     else:
         clcmd = sys.argv[2]
         if clcmd not in ['cfg', 'out', 'merge', 'run', 'calc']:
-            raise Exception(f'Clean Mode support the following command: cfg out merge run calc. Received: {clcmd}')
+            raise Exception(f'[ERROR] Clean Mode support the following command: cfg out merge run calc. Received: {clcmd}')
         elif clcmd == 'cfg':
             files = os.listdir()
             nrm = 0
@@ -731,6 +796,10 @@ if mode in ['repo', 'report']:
         for idx, item in enumerate(zip(CutArgs.ptTags, CutArgs.ptMaxs)):
             tag, ptmax = item
             l.log(f'Item {idx+1:03d} / {len(CutArgs.ptTags)} - {tag}: {CutArgs.ptMin:.2f} - {ptmax:.2f}')
+    if Args.ref3:
+        l.log('RefMult3 is [ON]')
+    else:
+        l.log('RefMult3 is [OFF]')
     
     if os.path.exists(Args.outDir):
         l.log(f'====== As for getTerms ===== [E]')
