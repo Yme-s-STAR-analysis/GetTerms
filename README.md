@@ -2,15 +2,15 @@
 
 `author: yghuang`
 
-`version: 6.0`
+`version: 7.0`
 
 ## Quick Start
 
 1. modify parameters in `conf.py` according to your requirements
 
-2. swicth to ROOT6 and `make`
+2. in `Source` folder, replace `utils/CentParams.h` with the correct one of the very data set
 
-3. replace `utils/CentParams.h` with the correct one of the very data set
+3. swicth to ROOT6 and `make`
 
 4. change `cent_edge.txt` and `cent_edgeX.txt`
 
@@ -29,6 +29,26 @@
 9. `python3 manager.py clean [out/merge/calc]` to remove corresponding files
 
 ## Patch Note
+
+Version: 7.0
+
+29.07.2024 - Yige Huang
+
+1. Separation of the source code and manager system
+
+    * The get-terms part and manager system are put into 2 separate folders
+
+    * In principle, source part only needs to be compiled once for every data set, and we only need the executable `getTerms`
+
+    * To implete this, the traditional centrality correction tool is not a part of the source code, but replaced by a new one which reads centrality bin edge from text file
+
+2. New design for manager system
+
+    * Inspired by other submitting scripts (like PhQDM generating code using lustr in CBM's server, and my Glauber fit code for CBM's server), manager system can be much more easy to use (and save much more time)
+
+    * For merge mode, a much more efficient approach is invented: files will be merged twice, and save much more time
+
+    * There are also some minor changes in manager system, like centrality bin edge and other outside parameters are put into `conf.py`
 
 Version: 6.0
 
