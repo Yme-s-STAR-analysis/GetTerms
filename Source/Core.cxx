@@ -1,5 +1,9 @@
 /*
 
+	Version: 7.0 (29.07.2024)
+
+	1. Centrality tool is changed, so we don't need to compile many times for each data set anymore
+
 	Version: 6.0 (26.06.2024)
 
 	1. RefMult3 is off by default, one can switch it on by adding extra flag when compile
@@ -82,7 +86,7 @@
 #include "utils/StFemtoEvent.h"
 #include "utils/QualityController.h"
 #include "utils/Loader.h"
-#include "utils/CentCorrTool.h"
+#include "utils/CentDefinition.h"
 #include "utils/EffMaker.h"
 
 int main(int argc, char** argv){
@@ -146,9 +150,14 @@ int main(int argc, char** argv){
 	QualityController* qc = new QualityController();
 	qc->readConfig(fin);
 
-	CentCorrTool* cent_def = new CentCorrTool();
-	cent_def->EnableIndianMethod(true);
-	cent_def->ReadParams();
+#ifdef __REFMULT3__
+	CentDefinition* centDef3 = new CentDefinition();
+	std::cout << "[LOG] - From Core: Initializing centrality tool for RefMult3" << std::endl;
+	centDef3->Init("cent_edge.txt");
+#endif
+	CentDefinition* centDef3X = new CentDefinition();
+	std::cout << "[LOG] - From Core: Initializing centrality tool for RefMult3X" << std::endl;
+	centDef3->Init("cent_edgeX.txt");
 
 	// efficiency items here (for uncorrected case, just ignore them is okey)
 	EffMaker* effMaker = new EffMaker();
