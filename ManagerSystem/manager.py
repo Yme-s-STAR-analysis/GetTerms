@@ -255,7 +255,7 @@ if mode == 'submit':
         # TASK_TAG will ba changed when submit the jobs
         # on current stage, general parameters are given
         getTermsShellFile = f'{msDir}/getTerms.sh'
-        os.system(f'cp getTerms.sh getTermsShellFile')
+        os.system(f'cp {os.getcwd()}/getTerms.sh {getTermsShellFile}')
         os.system(f'sed -i "s|TPC_PATH|{Args.tpc_eff_path}|g" {getTermsShellFile}')
         os.system(f'sed -i "s|TOF_PATH|{Args.tof_eff_path}|g" {getTermsShellFile}')
         os.system(f'sed -i "s|PID_PATH|{Args.pid_eff_path}|g" {getTermsShellFile}')
