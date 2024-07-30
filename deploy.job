@@ -1,0 +1,10 @@
+Universe       = vanilla
+Notification   = never
+Priority       = +10
+GetEnv         = true
+Executable     = /star/u/yghuang/miniconda3/bin/python3
+Arguments      = "deploy.py"
+Log            = .Deploy.log
+Output         = .Deploy.out
+Error          = .Deploy.err
+Queue
