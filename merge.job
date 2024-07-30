@@ -2,8 +2,9 @@ Universe       = vanilla
 Notification   = never
 Priority       = +10
 GetEnv         = true
-Executable     = SHELLNAME
-Log            = .TASKNAME.log
-Output         = .TASKNAME.out
-Error          = .TASKNAME.err
+Executable     = /star/u/yghuang/miniconda3/bin/python3
+Arguments      = "merge.py TASKNAME SCANNAME ITERID MERGEID FLIST TDIR"
+Log            = .SCANNAME.log
+Output         = .SCANNAME.out
+Error          = .SCANNAME.err
 Queue
