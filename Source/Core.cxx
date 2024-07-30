@@ -157,7 +157,7 @@ int main(int argc, char** argv){
 #endif
 	CentDefinition* centDef3X = new CentDefinition();
 	std::cout << "[LOG] - From Core: Initializing centrality tool for RefMult3X" << std::endl;
-	centDef3->Init("cent_edgeX.txt");
+	centDef3X->Init("cent_edgeX.txt");
 
 	// efficiency items here (for uncorrected case, just ignore them is okey)
 	EffMaker* effMaker = new EffMaker();
@@ -198,13 +198,13 @@ int main(int argc, char** argv){
 
 #ifdef __REFMULT3__
 		double refMult3 = event->GetRefMult3();
-		int centBin = cent_def->GetCentrality9(refMult3);
+		int centBin = centDef3->GetCentrality(refMult3);
 		if (refMult3 > MaxMult) { continue; }
 		if (centBin < 0) { continue; }
 #endif
 
 		double refMult3X = event->GetRefMult3X();
-		int centBinX = cent_def->GetCentrality9(refMult3X, true);
+		int centBinX = centDef3X->GetCentrality(refMult3X);
 		if (refMult3X > MaxMult) { continue; }
 		if (centBinX < 0) { continue; }
 
