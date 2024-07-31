@@ -275,6 +275,7 @@ if mode == 'merge':
                 os.system(f'rm -rf {cJobDir}')
             os.mkdir(f'{cJobDir}')
             os.system(f'cp merge.py {cJobDir}/merge.py')
+            os.system(f'cp yLog.py {cJobDir}/yLog.py')
 
             if CutArgs.yScan:
                 for item in CutArgs.yRange:
