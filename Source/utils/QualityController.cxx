@@ -111,12 +111,16 @@ bool QualityController::isBadEvent(double vz) {
     return (vz < vzMin || vz > vzMax);
 }
 
-bool QualityController::isBadTrack(double pt, double y, int nHitsFit, double nSigma, double dca, bool needTOF, double mass2) {
+bool QualityController::isBadTrack(double pt, double y, int nHitsFit, double nSigma, double dca, bool needTOF, double mass2, bool asCut) {
     if (pt <= ptMin || pt >= ptMax) { return true; }
     if (rapidityMode == 1) { y = fabs(y); } // v1.3 new feature, only if the mode is 1, we use absolute value of rapidity
     if (y <= yMin || y >= yMax) { return true; }
     if (nHitsFit <= nHitsFitCut) { return true; }
-    if (fabs(nSigma) >= nSigmaCut) { return true; }
+    if (asCut && !needTOF) {
+        return nSigma >= nSigmaCut || nSigma < 0;
+    } else {
+        return fabs(nSigma) >= nSigmaCut;
+    }
     if (dca >= dcaCut) { return true; }
     if (needTOF && (mass2 <= mass2Min || mass2 >= mass2Max)) { 
         return true; 

@@ -1,4 +1,9 @@
 /*
+
+    Version 3.0 (27.08.2024)
+
+    > Consider asymmetric PID cut
+
     Version 2.0 (15.12.2023)
 
     > DCAxy/z cut is done when generate fDst tree, this options are deprecated, but the interfaces are kept
@@ -63,7 +68,7 @@ class QualityController {
         void readConfig(std::ifstream* ifConfig);
         void Print();
         bool isBadEvent(double vz); // vr is removed
-        bool isBadTrack(double pt, double y, int nHitsFit, double nSigma, double dca, bool needTOF, double mass2); // nHitsDedx and nHitsRatio are removed
+        bool isBadTrack(double pt, double y, int nHitsFit, double nSigma, double dca, bool needTOF, double mass2, bool asCut=false); // nHitsDedx and nHitsRatio are removed
 };
 
 #endif

@@ -233,13 +233,24 @@ int main(int argc, char** argv){
 			
 			// Here is the PID selection: use TOF or not
 			bool needTOF = false;
-			if (fYP < 0.6 && pt > 0.8) { needTOF = true; }
-			if (fYP > 0.6 && pt > 0.7) { needTOF = true; }
+			bool asCut = false; // by default, apply symmetric PID cut
+			if (fYP < 0.5 && pt > 0.8) { needTOF = true; }
+			if (fYP >= 0.5 && fYP < 0.6) {
+				if (positive) {
+					if (pt > 0.9) { asCut = true; }
+					if (pt > 1.1) { needTOF = true; }
+				} else {
+					if (pt > 0.7) { asCut = true; }
+					if (pt > 1.0) { needTOF = true; }
+				}
+			}
 
 			// Make track Cut
-			if (qc->isBadTrack(pt, YP, nHitsFit, nSig, dca, needTOF, mass2)) {
+			// nHitsRatio quantity is already cut when generating the tree
+			// add asymmetric cut
+			if (qc->isBadTrack(pt, YP, nHitsFit, nSig, dca, needTOF, mass2, asCut)) {
 				continue;
-			} // nHitsRatio quantity is already cut when generating the tree
+			} 
 
 			np += positive;
 			na += !positive;
@@ -248,6 +259,7 @@ int main(int argc, char** argv){
 
 			// for corrected case:
 			double pid_eff = effMaker->GetPidEff(positive, pt, YP);
+			if (asCut && !needTOF) { pid_eff *= 0.5; }
 
 #ifdef __REFMULT3__
 			double eff = 1.0;
