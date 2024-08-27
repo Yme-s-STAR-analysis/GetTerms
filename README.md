@@ -2,7 +2,7 @@
 
 `author: yghuang`
 
-`version: 7.1`
+`version: 7.2`
 
 ## Quick Start
 
@@ -29,6 +29,14 @@
 9. `python3 manager.py clean [out/merge/calc]` to remove corresponding files
 
 ## Patch Note
+
+Version: 7.2
+
+27.08.2024 - Yige Huang
+
+1. Add asymmetric cut option into the quality control
+
+    * Corresponding cut selection can be modified in `Core.cxx`, see comment `// Make track Cut`
 
 Version: 7.1
 
