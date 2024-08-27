@@ -117,9 +117,9 @@ bool QualityController::isBadTrack(double pt, double y, int nHitsFit, double nSi
     if (y <= yMin || y >= yMax) { return true; }
     if (nHitsFit <= nHitsFitCut) { return true; }
     if (asCut && !needTOF) {
-        return nSigma >= nSigmaCut || nSigma < 0;
+        if (nSigma >= nSigmaCut || nSigma < 0) { return true; };
     } else {
-        return fabs(nSigma) >= nSigmaCut;
+        if (fabs(nSigma) >= nSigmaCut) { return true; };
     }
     if (dca >= dcaCut) { return true; }
     if (needTOF && (mass2 <= mass2Min || mass2 >= mass2Max)) { 
