@@ -43,7 +43,7 @@ int CentDefinition::GetCentrality(int mult) {
         return -1;
     }
     for (int i=0; i<nCent; i++) {
-        if (mult > edge[i]) {
+        if (mult >= edge[i]) {
             return i;
         }
     }
