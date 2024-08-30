@@ -192,6 +192,8 @@ int main(int argc, char** argv){
 			double pid_eff = effMaker->GetPidEff(positive, pt, YP);
 			if (asCut && !needTOF) { pid_eff *= 0.5; }
 
+			double eff_factor = positive ? eff_factor_pro : eff_factor_pbar;
+			
 #ifdef __REFMULT3__
 			double eff = 1.0;
 			double tpc_eff = effMaker->GetTpcEff(positive, pt, YP, centBin, vz);
@@ -199,7 +201,6 @@ int main(int argc, char** argv){
 
 			eff = tpc_eff * pid_eff;
 			if (needTOF) { eff *= tof_eff; }
-			double eff_factor = positive ? eff_factor_pro : eff_factor_pbar;
 			eff *= eff_factor;
             eff = eff > 1.0 ? 1.0 : eff;
 
@@ -218,7 +219,6 @@ int main(int argc, char** argv){
 
 			effX = tpc_effX * pid_eff;
 			if (needTOF) { effX *= tof_effX; }
-			double eff_factor = positive ? eff_factor_pro : eff_factor_pbar;
 			effX *= eff_factor;
             effX = effX > 1.0 ? 1.0 : effX;
 
