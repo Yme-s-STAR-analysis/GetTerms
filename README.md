@@ -30,7 +30,7 @@
 
 ## Patch Note
 
-Version: 7.2
+Version: 7.3
 
 30.08.2024 - Yige Huang
 
