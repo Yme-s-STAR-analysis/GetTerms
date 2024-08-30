@@ -2,7 +2,7 @@
 
 `author: yghuang`
 
-`version: 7.2`
+`version: 7.3`
 
 ## Quick Start
 
@@ -29,6 +29,14 @@
 9. `python3 manager.py clean [out/merge/calc]` to remove corresponding files
 
 ## Patch Note
+
+Version: 7.2
+
+30.08.2024 - Yige Huang
+
+1. The centrality selection is changed: from left-open and right-close to left-close and right-open
+
+2. Removed patch notes from `Core.cxx`
 
 Version: 7.2
 
