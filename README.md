@@ -2,7 +2,7 @@
 
 `author: yghuang`
 
-`version: 7.3`
+`version: 7.4`
 
 ## Quick Start
 
@@ -11,6 +11,10 @@
 2. in `Source` folder, replace `utils/CentParams.h` with the correct one of the very data set
 
 3. swicth to ROOT6 and `make`
+
+    1. To activate utmost 4th order mode, add `FOURTH=1`
+
+    2. To activate RefMult3, add `REFMULT3=1`
 
 4. change `cent_edge.txt` and `cent_edgeX.txt`
 
@@ -29,6 +33,15 @@
 9. `python3 manager.py clean [out/merge/calc]` to remove corresponding files
 
 ## Patch Note
+
+Version: 7.4
+
+16.09.2024 - Yige Huang
+
+1. Add an additional option that only calculate up to 4th order
+    * To activate this, `make FOURTH=1`
+
+2. Similarly, at present, to activate RefMult3, please add `REFMULT3=1` when `make`
 
 Version: 7.3
 
