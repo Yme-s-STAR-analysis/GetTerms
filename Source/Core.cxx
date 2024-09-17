@@ -16,9 +16,14 @@
 #include "utils/StFemtoTrack.h"
 #include "utils/StFemtoEvent.h"
 #include "utils/QualityController.h"
-#include "utils/Loader.h"
 #include "utils/CentDefinition.h"
 #include "utils/EffMaker.h"
+
+#ifdef __FOURTH__
+	#include "utils/Loader4.h"
+#else
+	#include "utils/Loader6.h"
+#endif
 
 int main(int argc, char** argv){
 	/*
