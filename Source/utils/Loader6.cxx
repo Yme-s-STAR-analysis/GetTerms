@@ -3,7 +3,7 @@
 #include "TProfile.h"
 #include "TH1D.h"
 #include "TFile.h"
-#include "Loader.h"
+#include "Loader6.h"
 
 Loader::Loader(const char* type, TFile* tf, int MaxMult) : ParticleType(type), _nMultBin(MaxMult+1) {
 	for(int r=1;r<=6;++r) {
