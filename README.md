@@ -2,7 +2,7 @@
 
 `author: yghuang`
 
-`version: 7.4`
+`version: 7.5`
 
 ## Quick Start
 
@@ -33,6 +33,14 @@
 9. `python3 manager.py clean [out/merge/calc]` to remove corresponding files
 
 ## Patch Note
+
+Version: 7.5
+
+06.10.2024 - Yige Huang
+
+1. Add an additional option that alters the TOF efficiency formatting
+    * Now use TH2->Interpolate(y, pt)
+    * To activate this, `make INTERPOLATE=1`
 
 Version: 7.4
 
