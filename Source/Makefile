@@ -1,5 +1,6 @@
 ACTREFMULT3=
 ACTFOURTH=
+ACTINTTOFEFF=
 
 # check: is REFMULT3 activated
 ifdef REFMULT3
@@ -14,13 +15,18 @@ else
 	LOADERSRC=utils/Loader6.cxx
 endif
 
+# check: is INTERPOLATE
+ifdef INTERPOLATE
+	ACTINTTOFEFF=-D__INTERPOLATE_TOF_EFF__
+endif
+
 all: compile
 
 mdict:
 	rootcint dict.cxx utils/StFemtoEvent.h utils/StFemtoTrack.h
 
 compile: clean mdict
-	g++ -o getTerms -std=c++11 dict.cxx $(LOADERSRC) utils/QualityController.cxx utils/StFemtoEvent.cxx utils/StFemtoTrack.cxx utils/EffMaker.cxx utils/CentDefinition.cxx Core.cxx `root-config --libs --cflags` $(ACTREFMULT3) $(ACTFOURTH)
+	g++ -o getTerms -std=c++11 dict.cxx $(LOADERSRC) utils/QualityController.cxx utils/StFemtoEvent.cxx utils/StFemtoTrack.cxx utils/EffMaker.cxx utils/CentDefinition.cxx Core.cxx `root-config --libs --cflags` $(ACTREFMULT3) $(ACTFOURTH) $(ACTINTTOFEFF)
 
 clean:
 	touch getTerms
