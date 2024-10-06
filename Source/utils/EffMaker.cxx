@@ -1,5 +1,5 @@
 #include "EffMaker.h"
-#include "TH1D.h"
+#include "TH1F.h"
 #include "TH2F.h"
 #include "TFile.h"
 #include "TF1.h"
@@ -49,6 +49,7 @@ void EffMaker::ReadInEffFile(const char* tpc, const char* tof, const char* pid, 
                     );
                 }
                 if (!tofOff) {
+#ifndef __INTERPOLATE_TOF_EFF__
                     tf_tof->GetObject(
                         Form("TofEff_cent%d_vz%d_y%d_Pro", iCent, iVz, iY),
                         ftof_pro[iCent][iVz][iY]
@@ -57,19 +58,20 @@ void EffMaker::ReadInEffFile(const char* tpc, const char* tof, const char* pid, 
                         Form("TofEff_cent%d_vz%d_y%d_Pbar", iCent, iVz, iY),
                         ftof_pbar[iCent][iVz][iY]
                     );
+#else
+                    tf_tof->GetObject(
+                        Form("TofEff_cent%d_vz%d_y%d_Pro", iCent, iVz, iY),
+                        htof_pro[iCent][iVz][iY]
+                    );
+                    tf_tof->GetObject(
+                        Form("TofEff_cent%d_vz%d_y%d_Pbar", iCent, iVz, iY),
+                        htof_pbar[iCent][iVz][iY]
+                    );
+#endif
                 }
             }
+
         }
-        // if (!pidOff) {
-        //     tf_pid->GetObject(
-        //         Form("PidEff_%s_vz%d_Pro", nSigTag, iVz),
-        //         pid_pro[iVz]
-        //     );
-        //     tf_pid->GetObject(
-        //         Form("PidEff_%s_vz%d_Pbar", nSigTag, iVz),
-        //         pid_pbar[iVz]
-        //     );
-        // }
     }
     if (!pidOff) {
         tf_pid->GetObject(
@@ -108,31 +110,23 @@ double EffMaker::GetTofEff(bool positive, double pt, double y, int cent, double 
     if (vz < 0) { return -1; }
     int yb = YPSplit(y);
     if (yb < 0) { return -1; }
+    double eff = -1;
+#ifndef __INTERPOLATE_TOF_EFF__
     if (positive) {
-        ff = ftof_pro[cent][vz][yb];
+        eff = ftof_pro[cent][vz][yb]->Eval(pt);
     } else {
-        ff = ftof_pbar[cent][vz][yb];
+        eff = ftof_pbar[cent][vz][yb]->Eval(pt);
     }
-    double eff = ff->Eval(pt);
+#else
+    if (positive) {
+        eff = htof_pro[cent][vz][yb]->Interpolate(pt);
+    } else {
+        eff = htof_pbar[cent][vz][yb]->Interpolate(pt);
+    }
+#endif
     if (eff < 0 || eff > 1) { return -1; }
     return eff;
 }
-
-// double EffMaker::GetPidEff(bool positive, double p, double vz_) {
-//     if (pidOff) { return 1.0; }
-//     p = p > 3.4 ? 3.4 : p;
-//     int vz = VzSplit(vz_);
-//     if (vz < 0) { return -1; }
-//     if (positive) {
-//         th1 = pid_pro[vz];
-//     } else {
-//         th1 = pid_pbar[vz];
-//     }
-//     int x = th1->FindBin(p);
-//     double eff = th1->GetBinContent(x);
-//     if (eff < 0 || eff > 1) { return -1; }
-//     return eff;
-// }
 
 double EffMaker::GetPidEff(bool positive, double pt, double y) {
     if (pidOff) { return 1.0; }
