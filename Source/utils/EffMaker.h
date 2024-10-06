@@ -1,7 +1,7 @@
 #ifndef YIGE_EFF_MAKER_HEADER
 #define YIGE_EFF_MAKER_HEADER
 
-class TH1F;
+class TH1D;
 class TH2F;
 class TF1;
 
@@ -19,8 +19,8 @@ class EffMaker{
         TF1* ftpc_pro[nCent][nVz][nY];
         TF1* ftpc_pbar[nCent][nVz][nY];
 #ifdef __INTERPOLATE_TOF_EFF__
-        TH1F* htof_pro[nCent][nVz][nY];
-        TH1F* htof_pbar[nCent][nVz][nY];
+        TH1D* htof_pro[nCent][nVz][nY];
+        TH1D* htof_pbar[nCent][nVz][nY];
 #else
         TF1* ftof_pro[nCent][nVz][nY];
         TF1* ftof_pbar[nCent][nVz][nY];

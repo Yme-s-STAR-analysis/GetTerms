@@ -1,5 +1,5 @@
 #include "EffMaker.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TH2F.h"
 #include "TFile.h"
 #include "TF1.h"
