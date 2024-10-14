@@ -2,7 +2,7 @@
 
 `author: yghuang`
 
-`version: 7.5`
+`version: 7.6`
 
 ## Quick Start
 
@@ -33,6 +33,12 @@
 9. `python3 manager.py clean [out/merge/calc]` to remove corresponding files
 
 ## Patch Note
+
+Version: 7.6
+
+14.10.2024 - Yige Huang
+
+1. The asymmetric cut affects efficiency, and now the impact (0.5) would be inside EffMaker instead of in the Core code.
 
 Version: 7.5
 
