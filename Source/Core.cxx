@@ -194,8 +194,9 @@ int main(int argc, char** argv){
 			// detector efficiency
 
 			// for corrected case:
-			double pid_eff = effMaker->GetPidEff(positive, pt, YP);
-			if (asCut && !needTOF) { pid_eff *= 0.5; }
+			// Note: for v7.6 and higher version, GetPidEff requires an addtional boolean (asCut), which means DO APPLY 1/2 cut on TPC PID
+			//		-> so for TOF part, this asCut won't affect, but perhaps it is still in the range, nad that's why here I use asCut && !needTOF instead of simple asCut
+			double pid_eff = effMaker->GetPidEff(positive, pt, YP, asCut && !needTOF);
 
 			double eff_factor = positive ? eff_factor_pro : eff_factor_pbar;
 			
