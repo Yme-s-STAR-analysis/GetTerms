@@ -39,7 +39,7 @@ class EffMaker{
         double GetTpcEff(bool positive, double pt, double y, int cent, double vz);
         double GetTofEff(bool positive, double pt, double y, int cent, double vz);
         // double GetPidEff(bool positive, double p, double vz);
-        double GetPidEff(bool positive, double pt, double y);
+        double GetPidEff(bool positive, double pt, double y, bool asCut);
         // version 3 new
         int YPSplit(double y);
         int VzSplit(double vz);

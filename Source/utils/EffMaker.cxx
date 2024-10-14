@@ -128,7 +128,7 @@ double EffMaker::GetTofEff(bool positive, double pt, double y, int cent, double 
     return eff;
 }
 
-double EffMaker::GetPidEff(bool positive, double pt, double y) {
+double EffMaker::GetPidEff(bool positive, double pt, double y, bool asCut) {
     if (pidOff) { return 1.0; }
     if (positive) {
         th2 = pid_pro;
@@ -139,6 +139,7 @@ double EffMaker::GetPidEff(bool positive, double pt, double y) {
     int ptbin = th2->GetYaxis()->FindBin(pt);
     double eff = th2->GetBinContent(ybin, ptbin);
     if (eff < 0 || eff > 1) { return -1; }
+    if (asCut) { eff *= 0.5; }
     return eff;
 }
 
