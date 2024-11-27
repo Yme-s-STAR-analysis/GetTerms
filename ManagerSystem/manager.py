@@ -96,6 +96,7 @@ if mode == 'submit':
         l.log(f'{Args.ref3=}')
         l.log(f'{nFiles} files in total, {nJobs} regular jobs with {nFilesPerJob} files to handle.')
         if bonus:
+            nJobs += 1
             l.log(f'Bonus job will manage {bonus} jobs.')
 
     if sMode == 's':
@@ -115,8 +116,6 @@ if mode == 'submit':
 
         # step 2: prepare submitting scripts
         l.log('Now preparing submitting scripts')
-        if bonus:
-            nJobs += 1
         # TASK_TAG will ba changed when submit the jobs
         # on current stage, general parameters are given
         getTermsShellFile = f'{msDir}/getTerms.sh'
@@ -266,6 +265,8 @@ if mode == 'merge':
     
     if mIter == 1: # first iteration
         mFilesPerJob = 15
+        if bonus:
+            nJobs += 1
         mJobs = nJobs // mFilesPerJob
         mBonus = nJobs - mJobs * mFilesPerJob
 
@@ -888,7 +889,7 @@ if mode == 'report':
     l.log(f'\tFile list is: {Args.fileList} ({nFiles} files).')
     l.log(f'\t{nJobs} jobs are dispatched for processing {nFilesPerJob} files.')
     if bonus:
-        l.log(f'Among them, there is one bonus job which will process {bonus} files.')
+        l.log(f'\tBesides, there is one bonus job which will process {bonus} files.')
     l.log(f'\tTPC efficiency is from: {Args.tpc_eff_path}')
     l.log(f'\tTOF efficiency is from: {Args.tof_eff_path}')
     l.log(f'\tPID efficiency is from: {Args.pid_eff_path}')
