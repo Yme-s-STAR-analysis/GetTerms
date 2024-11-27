@@ -2,7 +2,7 @@
 
 `author: yghuang`
 
-`version: 7.6`
+`version: 7.6.1`
 
 ## Quick Start
 
@@ -33,6 +33,14 @@
 9. `python3 manager.py clean [out/merge/calc]` to remove corresponding files
 
 ## Patch Note
+
+Version: 7.6.1
+
+27.11.2024 - Yige Huang
+
+1. Fix a bug: when calculate number of jobs in submit (b) and merge (1) modes will miss the bonus job.
+
+2. Text in report mode.
 
 Version: 7.6
 
