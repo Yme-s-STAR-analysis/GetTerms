@@ -1,30 +1,30 @@
 r'''
-    Version: 7.0
-    Date: 29.07.2024
+    Version: 7.7
+    Date: 04.02.2025
 '''
 
 class Args:
-    nFilesPerJob = 20
+    nFilesPerJob = 50
     targetDir = '/target/path'
     outDir = f'{targetDir}/job'
     mergeDir = f'{targetDir}/merge'
     runDir = f'{targetDir}/run'
-    fileList = '/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/3AceList/19.list'
-    tpc_eff_path = '/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/19/TpcEff.default.root'
-    tof_eff_path = '/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/19/TofEff.default.root'
-    pid_eff_path = '/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/19/PidEff.root'
+    fileList = 'acetree.file.list'
+    tpc_eff_path = 'TpcEff.default.root'
+    tof_eff_path = 'TofEff.default.root'
+    pid_eff_path = 'PidEff.root'
     nSigmaTag = '2p0'
     eff_fac_pro = 1.0
     eff_fac_pbar = 1.0
-    calc_exec = '/star/u/yghuang/.tools/CumulantCalculation/runCumulant'
+    calc_exec = '/star/u/yghuang/.tools/CumulantCalculation/runCumulant4'
     title = 'default'
     ref3 = False
-    cent_edge = [511, 423, 289, 194, 125, 76, 43, 23, 11]
-    cent_edgeX = [710, 590, 407, 275, 178, 109, 62, 33, 16]
+    cent_edge = [500, 400, 350, 300, 250, 200, 150, 100, 50]
+    cent_edgeX = [700, 600, 500, 400, 350, 300, 250, 150, 100]
     Npart = [342, 290, 226, 160, 110, 72, 44, 25, 13]
     NpartX = [342, 290, 226, 160, 110, 72, 44, 25, 13]
-    w8 = [1.50625, -79.9735, 2.42896, 27.4434, -0.00119101, 8.70066e-07, 4461.3, 289]
-    w8X = [1.62005, -145.283, 2.37174, 48.7206, -0.00102936, 5.35555e-07, 11989.1, 407]
+    w8 = [1.0, -80.0, 2.4, 48.7, -0.0012, 8e-7, 12000.0, 999]
+    w8X = [1.0, -80.0, 2.4, 48.7, -0.0012, 8e-7, 12000.0, 999]
 
 class CutArgs:
     nHitsFit = 20
