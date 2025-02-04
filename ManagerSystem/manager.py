@@ -3,8 +3,8 @@ import os
 from conf import Args, CutArgs
 from yLog import yLog
 
-__version__ = '7.0'
-__updatedTime__ = '29.07.2024'
+__version__ = '7.7'
+__updatedTime__ = '04.02.2025'
 
 l = yLog('.ManagerSystem.log')
 
@@ -106,6 +106,8 @@ if mode == 'submit':
             os.system(f'rm -rf {msDir}')
         os.mkdir(f'{msDir}')
         for i in range(nJobs):
+            if bonus and i == nJobs -1: # nJobs already takes bonus into account 
+                continue
             with open(f'{msDir}/{i}.list', 'w') as f:
                 for line in range(i * nFilesPerJob, (i+1) * nFilesPerJob):
                     f.write(flist[line])
