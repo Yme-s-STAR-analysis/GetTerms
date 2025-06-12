@@ -21,6 +21,8 @@
 
 #ifdef __FOURTH__
 	#include "utils/Loader4.h"
+#elif defined(__HOMO3__)
+	#include "utils/LoaderHomo.h"
 #else
 	#include "utils/Loader6.h"
 #endif
@@ -57,12 +59,15 @@ int main(int argc, char** argv){
 #ifdef __REFMULT3__
     TH2D* hNpRef3 = new TH2D("hNprotonRefMult3", ";RefMult3;N_{proton}", 850, -0.5, 849.5, 100, -0.5, 99.5);
     TH2D* hNaRef3 = new TH2D("hNantiprotonRefMult3", ";RefMult3;N_{antiproton}", 850, -0.5, 849.5, 30, -0.5, 29.5);
+#ifndef __HOMO3__
     TH2D* hNnRef3 = new TH2D("hNnetprotonRefMult3", ";RefMult3;N_{net-proton}", 850, -0.5, 849.5, 80, -10.5, 69.5);
+#endif
 #endif
     TH2D* hNpRef3X = new TH2D("hNprotonRefMult3X", ";RefMult3X;N_{proton}", 1050, -0.5, 1049.5, 100, -0.5, 99.5);
     TH2D* hNaRef3X = new TH2D("hNantiprotonRefMult3X", ";RefMult3X;N_{antiproton}", 1050, -0.5, 1049.5, 30, -0.5, 29.5);
+#ifndef __HOMO3__
     TH2D* hNnRef3X = new TH2D("hNnetprotonRefMult3X", ";RefMult3X;N_{net-proton}", 1050, -0.5, 1049.5, 80, -10.5, 69.5);
-
+#endif
   	std::cout << "[LOG] There will be " << nentries << " events.\n";
 
 	// v2.3 single rapidity for each
@@ -109,13 +114,17 @@ int main(int argc, char** argv){
 
 #ifdef __REFMULT3__
 	TFile* terms3 = new TFile(Form("%s.root", task_tag), "recreate");
+#ifndef __HOMO3__
 	Loader* lder_n = new Loader("Netp", terms3, MaxMult);
+#endif
 	Loader* lder_p = new Loader("Pro", terms3, MaxMult);
 	Loader* lder_a = new Loader("Pbar", terms3, MaxMult);
 #endif
 
 	TFile* terms3X = new TFile(Form("%sX.root", task_tag), "recreate");
+#ifndef __HOMO3__
 	Loader* lder_nX = new Loader("Netp", terms3X, MaxMult);
+#endif
 	Loader* lder_pX = new Loader("Pro", terms3X, MaxMult);
 	Loader* lder_aX = new Loader("Pbar", terms3X, MaxMult);
 
@@ -212,10 +221,14 @@ int main(int argc, char** argv){
 
 			if (positive) {
 				lder_p->ReadTrack(1.0, eff);
+#ifndef __HOMO3__
 				lder_n->ReadTrack(1.0, eff);
+#endif
 			} else {
 				lder_a->ReadTrack(1.0, eff);
+#ifndef __HOMO3__
 				lder_n->ReadTrack(-1.0, eff);
+#endif
 			}
 #endif
 
@@ -230,10 +243,14 @@ int main(int argc, char** argv){
 
 			if (positive) {
 				lder_pX->ReadTrack(1.0, effX);
+#ifndef __HOMO3__
 				lder_nX->ReadTrack(1.0, effX);
+#endif
 			} else {
 				lder_aX->ReadTrack(1.0, effX);
+#ifndef __HOMO3__
 				lder_nX->ReadTrack(-1.0, effX);
+#endif
 			}
 
 		} // track loop ends
@@ -241,19 +258,26 @@ int main(int argc, char** argv){
 #ifdef __REFMULT3__
 		lder_p->Store(refMult3);
 		lder_a->Store(refMult3);
+#ifndef __HOMO3__
 		lder_n->Store(refMult3);
+#endif
         hNpRef3->Fill(refMult3, np);
         hNaRef3->Fill(refMult3, na);
+#ifndef __HOMO3__
         hNnRef3->Fill(refMult3, np - na);
+#endif
 #endif
 
 		lder_pX->Store(refMult3X);
 		lder_aX->Store(refMult3X);
+#ifndef __HOMO3__
 		lder_nX->Store(refMult3X);
+#endif
         hNpRef3X->Fill(refMult3X, np);
         hNaRef3X->Fill(refMult3X, na);
+#ifndef __HOMO3__
         hNnRef3X->Fill(refMult3X, np - na);
-
+#endif
   	} // event loop ends
 	
 #ifdef __REFMULT3__
@@ -272,12 +296,16 @@ int main(int argc, char** argv){
 #ifdef __REFMULT3__
     hNpRef3->Write();
     hNaRef3->Write();
+#ifndef __HOMO3__
     hNnRef3->Write();
+#endif
 #endif
 
     hNpRef3X->Write();
     hNaRef3X->Write();
+#ifndef __HOMO3__
     hNnRef3X->Write();
+#endif
     p_dist_file->Close();
 
 	std::cout << "[LOG] - From Core: This is the end of getTerms." << std::endl;
