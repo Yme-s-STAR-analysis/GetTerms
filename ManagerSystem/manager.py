@@ -3,8 +3,8 @@ import os
 from conf import Args, CutArgs
 from yLog import yLog
 
-__version__ = '7.7'
-__updatedTime__ = '04.02.2025'
+__version__ = '7.8'
+__updatedTime__ = '12.06.2025'
 
 l = yLog('.ManagerSystem.log')
 
@@ -235,9 +235,11 @@ if mode == 'merge':
         raise Exception(f'Merge mode must accept 2 arguments but got {len(sys.argv)}')
     else:
         mIter = int(sys.argv[2])
-        assert(mIter >= 1)
+        assert(mIter >= 0)
         if mIter == 1:
             l.log('First iteration of merging, will merge raw outputs from previous stage')
+        elif mIter == 0:
+            l.log('One-time merging, will merge all raw outputs from previous stage')
         else:
             l.log(f'Additional iteration of merging ({mIter}), will merge merged files from previous iteration ({mIter-1})')
 
@@ -512,6 +514,132 @@ if mode == 'merge':
                         # submit
                         l.log(f'Current task: pt{item} Iteration-{mIter} Job-{mJobs} pDist')
                         os.system(f'cd {cJobDir} && condor_submit {cJobDir}/{cJobFile}')
+
+    elif mIter == 0: # one-time merging
+        if bonus:
+            nJobs += 1
+
+        for iJob in range(nJobs):
+            cJobDir = f'{mergeDir}/Iter2/job{iJob}'
+            if os.path.exists(f'{cJobDir}'):
+                os.system(f'rm -rf {cJobDir}')
+            os.mkdir(f'{cJobDir}')
+            os.system(f'cp merge.py {cJobDir}/merge.py')
+            os.system(f'cp yLog.py {cJobDir}/yLog.py')
+
+            if CutArgs.yScan:
+                for item in CutArgs.yRange:
+                    # Refmult3 mTerms
+                    if Args.ref3:
+                        cJobFile = f'merge.y{item}.job'
+                        # prepare list
+                        with open(f'{cJobDir}/y{item}.{iJob}.list', 'w') as f:
+                            for iFile in range(nJobs):
+                                f.write(f'{outDir}/job{iFile}/{Args.title}.y{item}.root\n')
+                        # change configuration
+                        os.system(f'cp merge.job {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|TASKNAME|{Args.title}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|SCANNAME|y{item}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|ITERID|2|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|MERGEID|{iJob}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|FLIST|{cJobDir}/y{item}.{iJob}.list|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|TDIR|{cJobDir}|g" {cJobDir}/{cJobFile}')
+                        # submit
+                        l.log(f'Current task: y{item} Iteration-0 Job-{iJob} RefMult3 mTerms')
+                        os.system(f'cd {cJobDir} && condor_submit {cJobDir}/{cJobFile}')
+                    # Refmult3X mTerms
+                    if True:
+                        cJobFile = f'merge.y{item}X.job'
+                        # prepare list
+                        with open(f'{cJobDir}/y{item}X.{iJob}.list', 'w') as f:
+                            for iFile in range(nJobs):
+                                f.write(f'{outDir}/job{iFile}/{Args.title}.y{item}X.root\n')
+                        # change configuration
+                        os.system(f'cp merge.job {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|TASKNAME|{Args.title}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|SCANNAME|y{item}X|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|ITERID|2|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|MERGEID|{iJob}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|FLIST|{cJobDir}/y{item}X.{iJob}.list|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|TDIR|{cJobDir}|g" {cJobDir}/{cJobFile}')
+                        # submit
+                        l.log(f'Current task: y{item} Iteration-0 Job-{iJob} RefMult3X mTerms')
+                        os.system(f'cd {cJobDir} && condor_submit {cJobDir}/{cJobFile}')
+                    # pDist
+                    if True:
+                        cJobFile = f'merge.y{item}.pDist.job'
+                        # prepare list
+                        with open(f'{cJobDir}/y{item}.pDist.{iJob}.list', 'w') as f:
+                            for iFile in range(nJobs):
+                                f.write(f'{outDir}/job{iFile}/{Args.title}.y{item}.pDist.root\n')
+                        # change configuration
+                        os.system(f'cp merge.job {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|TASKNAME|{Args.title}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|SCANNAME|y{item}.pDist|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|ITERID|2|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|MERGEID|{iJob}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|FLIST|{cJobDir}/y{item}.pDist.{iJob}.list|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|TDIR|{cJobDir}|g" {cJobDir}/{cJobFile}')
+                        # submit
+                        l.log(f'Current task: y{item} Iteration-0 Job-{iJob} pDist')
+                        os.system(f'cd {cJobDir} && condor_submit {cJobDir}/{cJobFile}')
+            if CutArgs.ptScan:
+                for item in CutArgs.pTRange:
+                    # Refmult3 mTerms
+                    if Args.ref3:
+                        cJobFile = f'merge.pt{item}.job'
+                        # prepare list
+                        with open(f'{cJobDir}/pt{item}.{iJob}.list', 'w') as f:
+                            for iFile in range(nJobs):
+                                f.write(f'{outDir}/job{iFile}/{Args.title}.pt{item}.root\n')
+                        # change configuration
+                        os.system(f'cp merge.job {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|TASKNAME|{Args.title}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|SCANNAME|pt{item}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|ITERID|2|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|MERGEID|{iJob}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|FLIST|{cJobDir}/pt{item}.{iJob}.list|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|TDIR|{cJobDir}|g" {cJobDir}/{cJobFile}')
+                        # submit
+                        l.log(f'Current task: pt{item} Iteration-0 Job-{iJob} RefMult3 mTerms')
+                        os.system(f'cd {cJobDir} && condor_submit {cJobDir}/{cJobFile}')
+                    # Refmult3X mTerms
+                    if True:
+                        cJobFile = f'merge.pt{item}X.job'
+                        # prepare list
+                        with open(f'{cJobDir}/pt{item}X.{iJob}.list', 'w') as f:
+                            for iFile in range(nJobs):
+                                f.write(f'{outDir}/job{iFile}/{Args.title}.pt{item}X.root\n')
+                        # change configuration
+                        os.system(f'cp merge.job {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|TASKNAME|{Args.title}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|SCANNAME|pt{item}X|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|ITERID|2|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|MERGEID|{iJob}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|FLIST|{cJobDir}/pt{item}X.{iJob}.list|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|TDIR|{cJobDir}|g" {cJobDir}/{cJobFile}')
+                        # submit
+                        l.log(f'Current task: pt{item} Iteration-0 Job-{iJob} RefMult3X mTerms')
+                        os.system(f'cd {cJobDir} && condor_submit {cJobDir}/{cJobFile}')
+                    # pDist
+                    if True:
+                        cJobFile = f'merge.pt{item}.pDist.job'
+                        # prepare list
+                        with open(f'{cJobDir}/pt{item}.pDist.{iJob}.list', 'w') as f:
+                            for iFile in range(nJobs):
+                                f.write(f'{outDir}/job{iFile}/{Args.title}.pt{item}.pDist.root\n')
+                        # change configuration
+                        os.system(f'cp merge.job {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|TASKNAME|{Args.title}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|SCANNAME|pt{item}.pDist|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|ITERID|2|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|MERGEID|{iJob}|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|FLIST|{cJobDir}/pt{item}.pDist.{iJob}.list|g" {cJobDir}/{cJobFile}')
+                        os.system(f'sed -i "s|TDIR|{cJobDir}|g" {cJobDir}/{cJobFile}')
+                        # submit
+                        l.log(f'Current task: pt{item} Iteration-0 Job-{iJob} pDist')
+                        os.system(f'cd {cJobDir} && condor_submit {cJobDir}/{cJobFile}')
+        
     elif mIter == 2: # in principle, we only need at most 2 times
         lastIterPath = f'{mergeDir}/Iter{mIter-1}'
         lastIterJobs = os.listdir(lastIterPath)
@@ -909,11 +1037,16 @@ if mode == 'report':
                 l.log('\tThe directory exists, which means we are done or doing this step.')
                 l.log('\tNext step might be merge iteration 2')
         else: # has not iter 1
-            l.log(f'# Merge: [D]')
-            l.log(f'\tJobs are here: {Args.mergeDir}')
-            l.log('\tThe directory exists, but iteration folders do not exist, which means we haven\'t started it or they have been removed')
+            if os.path.exists(f'{Args.mergeDir}/Iter2'): # has iter 2
+                l.log(f'# Merge: [0]')
+                l.log(f'\tOne-term merging jobs are here: {Args.mergeDir}/Iter2')
+                l.log('\tThe directory exists, which means we are done or doing this step.')
+            else : # has not iter 2
+                l.log(f'# Merge: [E]')
+                l.log(f'\tJobs are here: {Args.mergeDir}')
+                l.log('\tThe directory exists, but iteration folders do not exist, which means we haven\'t started it or they have been removed')
     else: # removed
-        l.log(f'# Merge: [E]')
+        l.log(f'# Merge: [D]')
         l.log(f'\tJobs are here: {Args.mergeDir}')
         l.log('\tThe directory does not exist, which means it has not got started or is removed already.')
 
