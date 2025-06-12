@@ -2,7 +2,7 @@
 
 `author: yghuang`
 
-`version: 7.7`
+`version: 7.8`
 
 ## Quick Start
 
@@ -12,9 +12,12 @@
 
 3. swicth to ROOT6 and `make`
 
-    1. To activate utmost 4th order mode, add `FOURTH=1`
+    1. To activate up to 4th order mode, add `FOURTH=1`
 
-    2. To activate RefMult3, add `REFMULT3=1`
+    2. To activate homogenous factorial cumulant up to 3rd order mode, add `HOMO3=1`.
+    Note that, `FOURTH=1` tag will disable this mode.
+
+    3. To activate RefMult3, add `REFMULT3=1`
 
 4. change `cent_edge.txt` and `cent_edgeX.txt`
 
@@ -26,6 +29,12 @@
 
 6. after all the jobs are finished, try `python3 manager.py merge` to hadd them
 
+    1. `python3 manager.py merge 1` will merge the first time
+
+    2. `python3 manager.py merge 2` will merge the second time, such 2-term merge procedure can reduce merging time when we have too many sub-jobs
+
+    3. `python3 manager.py merge 0` will directly merge once, this mode is useful when we don't have that many sub-jobs
+
 7. switch back to ROOT5 and run `python3 manager.py calc` to calculate cumulants
 
 8. `python3 manager.py col` to collect cumulant root file, note that, those files did not apply re-weight
@@ -33,6 +42,16 @@
 9. `python3 manager.py clean [out/merge/calc]` to remove corresponding files
 
 ## Patch Note
+
+Version: 7.8
+
+12.06.2025 - Yige Huang
+
+1. Add new mode: homogenous factorial cumulant, i.e., to check kn over k1n should be constant, to activate this mode, use compiling tag HOMO3.
+
+2. The merge mode supports 1-term mode, that is, just merge once. This happens in particular when we activate homogenous mode which doesn't need too many sub-jobs.
+
+3. The status indicator of merging mode is improved.
 
 Version: 7.7
 
